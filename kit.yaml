@@ -1,0 +1,20 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: set
+displayName: dvdksn development shell
+description: A shell with Claude Code, Codex, GitHub SSH access, and Git signing.
+sourceUrl: https://github.com/dvdksn/kit
+licenses: [Apache-2.0]
+version: "1.0.0"
+args:
+  revision:
+    default: latest
+    pattern: '^[a-zA-Z0-9_.-]+$'
+    description: Component build tag; CI uses the full Git commit SHA
+    buildArg: KIT_REVISION
+kits:
+  - ref: ghcr.io/dvdksn/kit:shell-${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit:claude-mixin-${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit:codex-mixin-${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit:github-ssh-${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit:git-signing-${{ kit.args.revision }}

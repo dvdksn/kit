@@ -1,0 +1,9 @@
+Adapted from Docker sandbox-kit-spec examples (Apache-2.0).
+Copyright Docker, Inc. and contributors.
+Source: https://github.com/docker/sandbox-kit-spec
+Revision: 36210256127a244703211af7e0da63902466f11f
+
+Modified for dvdksn/kit: local component sources, pinned shell base,
+agent descriptor versions, Claude version verification, separate SSH access
+and signing responsibilities, and a GHCR publication workflow.
+Third-party images and agent binaries retain their respective licenses.
