@@ -71,3 +71,23 @@ jobs:
               "$IMAGE_PREFIX-$kit:$GITHUB_SHA-amd64" \
               "$IMAGE_PREFIX-$kit:$GITHUB_SHA-arm64"
           done
+
+  tools-set:
+    needs: component-indexes
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push the tools mixin set
+        run: |
+          docker buildx build kits/tools -f kits/tools/tools.yaml \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg "revision=$GITHUB_SHA" \
+            --provenance=false --push \
+            --tag "$IMAGE_PREFIX-tools:$GITHUB_SHA" \
+            --tag "$IMAGE_PREFIX-tools:latest"

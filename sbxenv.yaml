@@ -1,4 +1,5 @@
 schemaVersion: "1"
+name: dev
 
 # Keep OAuth providers in separate artifacts for sbx v0.45.1.
 # No workspace declaration: the repository is cloned inside the sandbox.
@@ -20,11 +21,8 @@ kits:
   - source: ghcr.io/dvdksn/kit-shell:latest
   - source: ghcr.io/dvdksn/kit-claude-mixin:latest
   - source: ghcr.io/dvdksn/kit-codex-mixin:latest
-  - source: ghcr.io/dvdksn/kit-github-ssh:latest
-  - source: ghcr.io/dvdksn/kit-git-signing:latest
-  - source: ghcr.io/dvdksn/kit-github-clone:latest
+  - source: ghcr.io/dvdksn/kit-tools:latest
     args:
       repo: ${{ env.args.repo }}
       ref: ${{ env.args.ref }}
       pr: ${{ env.args.pr }}
-  - source: ghcr.io/dvdksn/kit-rumdl:latest

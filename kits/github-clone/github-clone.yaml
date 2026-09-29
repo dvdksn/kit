@@ -5,8 +5,6 @@ displayName: GitHub clone
 description: Clone a GitHub repository into /home/agent/workspace before the shell starts.
 sourceUrl: https://github.com/dvdksn/kit
 version: "1.0.0"
-# The shell workload supplies gh. No create-time apt installation is needed.
-requires: ["deb/gh"]
 args:
   repo:
     required: true
@@ -58,7 +56,7 @@ capabilities:
             mkdir -p /home/agent/workspace
             chown agent:agent /home/agent/workspace
             git config --system --replace-all credential.https://github.com.helper ''
-            git config --system --add credential.https://github.com.helper '!gh auth git-credential'
+            git config --system --add credential.https://github.com.helper /usr/local/libexec/github-credential
           user: "0"
           description: Prepare the clone destination and GitHub credential helper
         - command:

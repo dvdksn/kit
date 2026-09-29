@@ -38,5 +38,6 @@ git clone -- "$url" "$dir"
 if [[ -n "$ref" ]]; then
   git -C "$dir" checkout "$ref"
 elif [[ -n "$pr" ]]; then
-  (cd "$dir" && gh pr checkout "$pr")
+  git -C "$dir" fetch origin "refs/pull/$pr/head:refs/remotes/origin/pr/$pr"
+  git -C "$dir" checkout --detach "refs/remotes/origin/pr/$pr"
 fi

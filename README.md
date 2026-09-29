@@ -3,7 +3,7 @@
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
 GitHub repository cloning, SSH access, Git signing, and rumdl for Markdown.
 
-All seven component descriptors, Dockerfiles, lifecycle hooks, scripts, and
+All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
 from upstream repositories or use the `docker/sbx-kit-shell` image.
 
@@ -16,13 +16,18 @@ sandbox creation:
 sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
 ```
 
+Without `--name`, the sandbox is named `dev`. Use a distinct name for each
+repository you work on.
+
 The clone is inside the sandbox at `/home/agent/workspace` (`~/workspace`),
 and the shell starts there. The environment file declares no host workspace
 mount. Run the command again with the same file and name to reattach.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
 published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
-artifacts, so each agent's host OAuth credential can be selected.
+artifacts, so each agent's host OAuth credential can be selected. The GitHub
+and Markdown mixins are published as one tools set because seven individual
+kits exceed Docker's container-label size limit for the composition lock.
 
 `repo` is required and accepts `owner/repo`. To select a branch, tag, or
 commit, add `--env-arg ref=main`. To check out a pull request, use
@@ -32,10 +37,11 @@ the same repository; a different repository or unrelated files cause an
 error instead of being overwritten. Use a fresh sandbox to change the
 repository or initial checkout arguments.
 
-Public repositories clone without a GitHub token. Bind a GitHub credential
-on the sandbox host for private repositories, PR checkout, GitHub CLI
-operations, and HTTPS pushes. The clone mixin requests proxy-managed GitHub
-credentials during install and runtime; it never stores a token in the image.
+Public repositories and pull requests clone without a GitHub token. Bind a
+GitHub credential on the sandbox host for private repositories, GitHub CLI
+operations, and authenticated HTTPS pushes. The clone mixin requests
+proxy-managed GitHub credentials during install and runtime; it never stores
+a token in the image.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
@@ -65,6 +71,7 @@ the image.
 | `kits/git-signing/` | SSH signing permission and Git signing defaults |
 | `kits/github-clone/` | Clone the requested repository into `~/workspace` |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
+| `kits/tools/` | Published mixin set of GitHub and Markdown tools |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
@@ -81,6 +88,7 @@ password secret is needed.
 2. A job combines both architectures under each mixin's commit tag and
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
+3. A job combines the four non-agent mixins into one tools artifact.
 
 Each component has its own GHCR image, such as
 `ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
