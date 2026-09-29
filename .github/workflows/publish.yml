@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/dvdksn/kit
+  IMAGE_PREFIX: ghcr.io/dvdksn/kit
 
 jobs:
   components:
@@ -42,7 +42,7 @@ jobs:
           for kit in claude-mixin codex-mixin github-ssh git-signing github-clone rumdl; do
             docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
             --platform "linux/$ARCH" --pull --no-cache --provenance=false --push \
-            --tag "$IMAGE:$kit-$GITHUB_SHA-$ARCH"
+            --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA-$ARCH"
           done
 
   component-indexes:
@@ -60,14 +60,14 @@ jobs:
         run: |
           docker buildx build kits/shell -f kits/shell/shell.yaml \
             --platform linux/amd64,linux/arm64 --pull --no-cache --provenance=false --push \
-            --tag "$IMAGE:shell-$GITHUB_SHA" --tag "$IMAGE:shell-latest"
+            --tag "$IMAGE_PREFIX-shell:$GITHUB_SHA" --tag "$IMAGE_PREFIX-shell:latest"
       - name: Publish both architectures under each component tag
         run: |
           set -euo pipefail
           for kit in claude-mixin codex-mixin github-ssh git-signing github-clone rumdl; do
             docker buildx imagetools create \
-            --tag "$IMAGE:$kit-$GITHUB_SHA" \
-            --tag "$IMAGE:$kit-latest" \
-              "$IMAGE:$kit-$GITHUB_SHA-amd64" \
-              "$IMAGE:$kit-$GITHUB_SHA-arm64"
+            --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA" \
+            --tag "$IMAGE_PREFIX-$kit:latest" \
+              "$IMAGE_PREFIX-$kit:$GITHUB_SHA-amd64" \
+              "$IMAGE_PREFIX-$kit:$GITHUB_SHA-arm64"
           done

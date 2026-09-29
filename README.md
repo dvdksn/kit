@@ -82,12 +82,17 @@ password secret is needed.
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
 
-Component tags use `:<component>-<full-commit-sha>` and
-`:<component>-latest`. Use a digest when you need an immutable reference.
-The environment file uses the moving `-latest` component tags.
-Previously published set tags remain in GHCR but are no longer updated.
+Each component has its own GHCR image, such as
+`ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
+compose the kits without a name collision. All component sources remain in
+this GitHub repository.
 
-The GHCR package is public and supports anonymous pulls.
+Component images have `:<full-commit-sha>` and `:latest` tags. Use a digest
+when you need an immutable reference. The environment file uses the moving
+`:latest` tags. Images previously published under `ghcr.io/dvdksn/kit`
+remain in GHCR but are no longer updated.
+
+The GHCR packages are public and support anonymous pulls.
 
 To build a component locally:
 
