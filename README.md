@@ -1,6 +1,6 @@
-# Development sandbox kit
+# Development sandbox kits
 
-A Docker Sandbox v3 kit set with a shell workload, a choice of Claude Code or Codex,
+A Docker Sandbox environment with a shell workload, Claude Code, Codex,
 GitHub repository cloning, SSH access, Git signing, and rumdl for Markdown.
 
 All seven component descriptors, Dockerfiles, lifecycle hooks, scripts, and
@@ -16,22 +16,13 @@ sandbox creation:
 sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
 ```
 
-Claude is the default agent. To use Codex instead, add `--env-arg agent=codex`.
-Only the selected agent mixin and its credential request are included. For
-example:
-
-```sh
-sbx env run ./sbxenv.yaml --name docs-codex --env-arg repo=docker/docs --env-arg agent=codex
-```
-
 The clone is inside the sandbox at `/home/agent/workspace` (`~/workspace`),
 and the shell starts there. The environment file declares no host workspace
 mount. Run the command again with the same file and name to reattach.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
-published kit artifact. Each variant of this set contains one agent and one
-OAuth provider. `sbxenv.yaml` composes the selected agent and the other
-components as separate artifacts.
+published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
+artifacts, so each agent's host OAuth credential can be selected.
 
 `repo` is required and accepts `owner/repo`. To select a branch, tag, or
 commit, add `--env-arg ref=main`. To check out a pull request, use
@@ -46,7 +37,7 @@ on the sandbox host for private repositories, PR checkout, GitHub CLI
 operations, and HTTPS pushes. The clone mixin requests proxy-managed GitHub
 credentials during install and runtime; it never stores a token in the image.
 
-Run the selected agent (`claude` or `codex`) in the shell. Use `rumdl fmt <file>` to format
+Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
@@ -57,7 +48,7 @@ credential capabilities are optional; the copied hooks also support an
 unbound state. These agents are configured to skip approval prompts and
 rely on the sandbox boundary for isolation.
 
-The set grants the union of its components' network and SSH permissions.
+The environment grants the union of its kits' network and SSH permissions.
 GitHub authentication is restricted to `git@github.com`; signing is
 restricted to the `git` namespace. Neither mixin copies private keys into
 the image.
@@ -66,8 +57,7 @@ the image.
 
 | Path | Purpose |
 | --- | --- |
-| `sbxenv.yaml` | Selects an agent at sandbox creation and composes published component artifacts |
-| `kit.yaml` | Builds either agent variant as one workload artifact |
+| `sbxenv.yaml` | Composes the published kits at sandbox creation |
 | `kits/shell/` | Shell workload built from the DHI shell-docker template |
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
@@ -91,18 +81,11 @@ password secret is needed.
 2. A job combines both architectures under each mixin's commit tag and
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
-3. The set builds resolve those exact commit tags and publish separate
-   Claude and Codex workloads for both architectures.
 
-The set build arg `agent=claude|codex` selects the agent mixin at build time.
-Published sets cannot change their component list at sandbox creation. Use
-`ghcr.io/dvdksn/kit:claude-latest` or `ghcr.io/dvdksn/kit:codex-latest` to
-select an agent with a single kit reference. The `:latest` tag remains an
-alias for Claude. Each variant also has a commit tag (`:claude-<sha>` or
-`:codex-<sha>`); `:sha-<sha>` remains an alias for Claude.
 Component tags use `:<component>-<full-commit-sha>` and
 `:<component>-latest`. Use a digest when you need an immutable reference.
-The frontend records component digests in the published set descriptor.
+The environment file uses the moving `-latest` component tags.
+Previously published set tags remain in GHCR but are no longer updated.
 
 The GHCR package is public and supports anonymous pulls.
 
@@ -116,24 +99,10 @@ docker buildx build kits/claude-mixin \
 kit-tck validate --layout /tmp/claude-layout latest
 ```
 
-To build the set after publishing the components:
-
-```sh
-docker buildx build . -f kit.yaml \
-  --build-arg revision=latest \
-  --build-arg agent=codex \
-  --platform linux/amd64,linux/arm64 \
-  --output type=oci,dest=/tmp/kit-layout,tar=false \
-  -t kit:latest
-kit-tck validate --layout /tmp/kit-layout latest
-```
-
-A v3 set requires registry references, so components must be published
-before the set builds. CI uses the current commit SHA instead of `latest`
-to keep the component sources tied to one checkout. Each CI build fetches
-latest stable program releases without cached install layers. Codex and
-Claude use their official native installers; rumdl uses its latest GitHub
-release and published checksum. Run the workflow again to refresh tools.
+Each CI build fetches the latest stable program releases without cached
+install layers. Codex and Claude use their official native installers; rumdl
+uses its latest GitHub release and published checksum. Run the workflow again
+to refresh tools.
 Local builds need `--pull --no-cache` for the same behavior.
 
 No agent MCP gateway is registered automatically.
