@@ -2,7 +2,7 @@ schemaVersion: "1"
 
 # Keep OAuth providers in separate artifacts for sbx v0.45.1.
 # No workspace declaration: the repository is cloned inside the sandbox.
-agent: kit
+agent: kit-shell
 args:
   repo:
     required: true
