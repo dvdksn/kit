@@ -7,3 +7,14 @@ Modified for dvdksn/kit: local component sources, pinned shell base,
 agent descriptor versions, Claude version verification, separate SSH access
 and signing responsibilities, and a GHCR publication workflow.
 Third-party images and agent binaries retain their respective licenses.
+
+GitHub clone behavior adapted from cdupuis/sbx-kits/github-clone:
+https://github.com/cdupuis/sbx-kits
+Revision: 4350afa27e6b6b5298dd40e07a8f10b8e678aacf
+Modified for v3, a fixed workspace, phase-scoped credentials, and preservation
+of existing working trees. No license was declared by that source repository.
+
+rumdl recipe adapted from docker/docs/.sbx/kits/rumdl/spec.yaml:
+https://github.com/docker/docs
+Revision: de3bdf51fc36c6bc64a8ead92834fdfd58da6454
+Modified from a v2 install hook to a v3 binary overlay; retains release hashes.
