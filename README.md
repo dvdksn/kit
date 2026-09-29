@@ -9,22 +9,28 @@ from upstream repositories or use the `docker/sbx-kit-shell` image.
 
 ## Run
 
-Install a Docker Sandboxes release with Kits v3 support, then create a
-sandbox with a repository argument:
+Use the checked-in environment file to compose the published components at
+sandbox creation:
 
 ```sh
-sbx create --name docs --kit-arg repo=docker/docs ghcr.io/dvdksn/kit:latest
-sbx run --name docs
+sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
 ```
 
 The clone is inside the sandbox at `/home/agent/workspace` (`~/workspace`),
-and the shell starts there. Omit the workspace path from `sbx create`:
-passing `.` would mount your host checkout. A direct `sbx run` also mounts
-the current directory by default, so use the two commands above.
+and the shell starts there. The environment file declares no host workspace
+mount. Run the command again with the same file and name to reattach.
+
+On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
+published kit artifact. The combined `ghcr.io/dvdksn/kit:latest` artifact
+contains Anthropic before OpenAI, so Codex's stored OAuth credential is not
+selected. `sbxenv.yaml` supplies each component as a separate artifact so
+both providers can be resolved. Use this environment file when relying on
+host OAuth credentials; the combined artifact remains available for other
+uses.
 
 `repo` is required and accepts `owner/repo`. To select a branch, tag, or
-commit, add `--kit-arg ref=main` to the create command. To check out a pull
-request, use `--kit-arg pr=123` instead. `ref` and `pr` are mutually exclusive.
+commit, add `--env-arg ref=main`. To check out a pull request, use
+`--env-arg pr=123` instead. `ref` and `pr` are mutually exclusive.
 The clone keeps full history. Retrying preserves an existing checkout of
 the same repository; a different repository or unrelated files cause an
 error instead of being overwritten. Use a fresh sandbox to change the
@@ -55,7 +61,8 @@ the image.
 
 | Path | Purpose |
 | --- | --- |
-| `kit.yaml` | Composes the seven published components into one workload |
+| `sbxenv.yaml` | Composes separate published artifacts at sandbox creation, preserving OAuth selection |
+| `kit.yaml` | Builds the combined workload artifact |
 | `kits/shell/` | Shell workload built from the DHI shell-docker template |
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |

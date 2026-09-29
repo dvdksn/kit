@@ -1,0 +1,30 @@
+schemaVersion: "1"
+
+# Keep OAuth providers in separate artifacts for sbx v0.45.1.
+# No workspace declaration: the repository is cloned inside the sandbox.
+agent: kit
+args:
+  repo:
+    required: true
+    description: GitHub repository in owner/repo form
+    pattern: '^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$'
+  ref:
+    default: ""
+    description: Optional branch, tag, or commit; mutually exclusive with pr
+    pattern: '^([A-Za-z0-9][A-Za-z0-9._/-]*)?$'
+  pr:
+    default: ""
+    description: Optional pull request number
+    pattern: '^[0-9]*$'
+kits:
+  - source: ghcr.io/dvdksn/kit:shell-latest
+  - source: ghcr.io/dvdksn/kit:claude-mixin-latest
+  - source: ghcr.io/dvdksn/kit:codex-mixin-latest
+  - source: ghcr.io/dvdksn/kit:github-ssh-latest
+  - source: ghcr.io/dvdksn/kit:git-signing-latest
+  - source: ghcr.io/dvdksn/kit:github-clone-latest
+    args:
+      repo: ${{ env.args.repo }}
+      ref: ${{ env.args.ref }}
+      pr: ${{ env.args.pr }}
+  - source: ghcr.io/dvdksn/kit:rumdl-latest
