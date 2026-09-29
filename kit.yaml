@@ -5,7 +5,6 @@ displayName: dvdksn development shell
 description: Clone a GitHub repository into a shell with Claude, Codex, SSH, Git signing, and rumdl.
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0]
-version: "1.1.0"
 args:
   repo:
     required: true

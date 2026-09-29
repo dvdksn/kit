@@ -83,7 +83,7 @@ password secret is needed.
    combined workload for both architectures.
 
 The final image is `ghcr.io/dvdksn/kit:latest`. Each build also publishes
-`ghcr.io/dvdksn/kit:sha-<full-commit-sha>` and the release tag `:1.1.0`.
+`ghcr.io/dvdksn/kit:sha-<full-commit-sha>` for identifying a development build.
 Component tags use `:<component>-<full-commit-sha>` and
 `:<component>-latest`. Use a digest when you need an immutable reference.
 The frontend records component digests in the published set descriptor.
@@ -107,8 +107,8 @@ docker buildx build . -f kit.yaml \
   --build-arg revision=latest \
   --platform linux/amd64,linux/arm64 \
   --output type=oci,dest=/tmp/kit-layout,tar=false \
-  -t kit:1.1.0
-kit-tck validate --layout /tmp/kit-layout 1.1.0
+  -t kit:latest
+kit-tck validate --layout /tmp/kit-layout latest
 ```
 
 A v3 set requires registry references, so components must be published
