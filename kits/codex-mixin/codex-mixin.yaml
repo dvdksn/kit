@@ -16,14 +16,8 @@ description: >-
   needs. Layer it onto a shell base and run `codex`.
 
 kind: mixin
-version: "${{ kit.args.version }}"
 
 args:
-  version:
-    default: "0.157.0"
-    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
-    description: Codex CLI release to install
-    buildArg: CODEX_VERSION
   # Model selection, resolved at create so one published kit serves every
   # preference: `--kit-arg model=… reasoningEffort=…`, or a kits[] entry's
   # args in sbxenv.yaml. Empty leaves codex's own default in force. Both
@@ -39,8 +33,6 @@ args:
     pattern: '^(none|minimal|low|medium|high|xhigh|max|ultra|persistent)?$'
     description: Reasoning effort (config.toml `model_reasoning_effort`); empty keeps the CLI default
     env: CODEX_REASONING_EFFORT
-
-provides: ["codex@${{ kit.args.version }}"]
 
 capabilities:
   # Every domain the credential injects into or routes to, plus the
@@ -105,8 +97,7 @@ capabilities:
         #   - none   -> neither; auth.json removed so codex prompts for
         #               login (a stale placeholder would 401 verbatim).
         # Rewritten unconditionally on every (re)create; deterministic
-        # from the mode, so idempotent. The MCP block is NOT written here
-        # — the startup append below is its single writer.
+        # from the mode, so idempotent.
         - command: |
             set -e
             mkdir -p /home/agent/.codex /home/agent/.agents
@@ -117,7 +108,6 @@ capabilities:
 
             approval_policy = "never"
             sandbox_mode = "danger-full-access"
-            mcp_oauth_credentials_store = "file"
             EOF
             # Model selection from the create-phase args. These are
             # top-level keys, so they must land here, before the
@@ -181,37 +171,6 @@ capabilities:
           user: agent
           env: [SBX_CRED_OPENAI_MODE, WORKSPACE_DIR]
           description: Seed Codex config/auth from SBX_CRED_OPENAI_MODE
-      startup:
-        # Gateway-first MCP registration. config.toml is shared territory
-        # (the install seed above and codex itself both write it), so
-        # append rather than overwrite; the grep guard makes the script
-        # idempotent across gateway restarts. No-op when MCP isn't
-        # enabled.
-        - command: |
-            set -e
-            [ -n "$MCP_GATEWAY_URL" ] || exit 0
-            cfg="$HOME/.codex/config.toml"
-            touch "$cfg"
-            grep -q "^\[mcp_servers.mcp-gateway\]" "$cfg" && exit 0
-            esc() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
-            url=$(esc "$MCP_GATEWAY_URL")
-            auth=$(esc "$MCP_SENTINEL_TOKEN_NAME")
-            # Codex's grammar for a streamable HTTP server: the transport
-            # is implied by `url` (a `command` would make it stdio; there
-            # is no `type` key), and static headers go in `http_headers`.
-            # A `[...headers]` sub-table is not read, so the gateway
-            # would be reached without its bearer token and codex would
-            # warn about both keys at startup.
-            cat >> "$cfg" <<EOF
-
-            [mcp_servers.mcp-gateway]
-            url = "$url"
-            http_headers = { Authorization = "Bearer $auth" }
-            EOF
-          user: agent
-          env: [MCP_GATEWAY_URL, MCP_SENTINEL_TOKEN_NAME]
-          description: Register the sandbox MCP gateway in ~/.codex/config.toml
-
   # Where codex reads shared skills, so the host's store reaches it in
   # the mixin shape too.
   - type: com.docker.sandbox/agent-skills@1

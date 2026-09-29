@@ -3,8 +3,8 @@ Copyright Docker, Inc. and contributors.
 Source: https://github.com/docker/sandbox-kit-spec
 Revision: 36210256127a244703211af7e0da63902466f11f
 
-Modified for dvdksn/kit: local component sources, pinned shell base,
-agent descriptor versions, Claude version verification, separate SSH access
+Modified for dvdksn/kit: local component sources, latest native program installations,
+removal of MCP gateway hooks, separate SSH access
 and signing responsibilities, and a GHCR publication workflow.
 Third-party images and agent binaries retain their respective licenses.
 
@@ -17,4 +17,5 @@ of existing working trees. No license was declared by that source repository.
 rumdl recipe adapted from docker/docs/.sbx/kits/rumdl/spec.yaml:
 https://github.com/docker/docs
 Revision: de3bdf51fc36c6bc64a8ead92834fdfd58da6454
-Modified from a v2 install hook to a v3 binary overlay; retains release hashes.
+Modified from a v2 install hook to a v3 binary overlay using the latest
+release and its published checksum.

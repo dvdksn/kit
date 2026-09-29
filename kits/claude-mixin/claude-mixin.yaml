@@ -16,16 +16,6 @@ description: >-
   run `claude`.
 
 kind: mixin
-version: "${{ kit.args.version }}"
-
-args:
-  version:
-    default: "2.1.282"
-    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
-    description: Claude Code release to install
-    buildArg: CLAUDE_VERSION
-
-provides: ["claude@${{ kit.args.version }}"]
 
 capabilities:
   # The agent's own egress rides with the kit that ships the agent: the
@@ -38,7 +28,6 @@ capabilities:
           - platform.claude.com:443
           - downloads.claude.ai:443
           - claude.com:443
-          - mcp-proxy.anthropic.com:443
           # /remote-control and /teleport relay: the daemon keeps a
           # WebSocket open here so claude.ai and the mobile app can
           # drive this session.
@@ -62,7 +51,6 @@ capabilities:
         name: ANTHROPIC_API_KEY
         inject:
           - {domain: api.anthropic.com, header: x-api-key, format: "%s"}
-          - {domain: mcp-proxy.anthropic.com, header: x-api-key, format: "%s"}
       oauth:
         tokenEndpoint: {host: platform.claude.com, path: /v1/oauth/token}
         sentinels:
@@ -155,21 +143,6 @@ capabilities:
           env: [SBX_CRED_ANTHROPIC_MODE]
           description: Seed Claude settings.json from the surfaced auth mode
 
-        # Gateway-first MCP registration, at install time so it is
-        # race-free. `claude mcp add` is not an idempotent rewrite —
-        # re-adding exits 1 — so `|| true` keeps a carried-forward entry
-        # from failing the create. The sentinel name is not a credential;
-        # the proxy substitutes the real token at request time.
-        - command: |
-            set -e
-            [ -n "$MCP_GATEWAY_URL" ] || exit 0
-            claude mcp add mcp-gateway "$MCP_GATEWAY_URL" \
-              --transport http \
-              --scope user \
-              --header "Authorization: Bearer $MCP_SENTINEL_TOKEN_NAME" || true
-          user: agent
-          env: [MCP_GATEWAY_URL, MCP_SENTINEL_TOKEN_NAME]
-          description: Register the sandbox MCP gateway at install
       startup:
         # Block volumes mount with a root-owned root and the entrypoint
         # runs as the agent user, so root re-owns the mount roots here,
@@ -177,21 +150,6 @@ capabilities:
         - command: [sh, -c, "chown -R agent:agent /home/agent/.claude/projects /home/agent/.claude/sessions /home/agent/.claude/todos /home/agent/.claude/shell-snapshots /home/agent/.claude/statsig 2>/dev/null || true"]
           user: "0"
           description: Re-own claude session-state volume mount roots to agent
-
-        # MCP registration fallback for the rare create where the
-        # install-time seed could not run. Non-destructive on purpose:
-        # startup hooks run concurrently with the live session, so no
-        # remove-then-add.
-        - command: |
-            set -e
-            [ -n "$MCP_GATEWAY_URL" ] || exit 0
-            claude mcp add mcp-gateway "$MCP_GATEWAY_URL" \
-              --transport http \
-              --scope user \
-              --header "Authorization: Bearer $MCP_SENTINEL_TOKEN_NAME" || true
-          user: agent
-          env: [MCP_GATEWAY_URL, MCP_SENTINEL_TOKEN_NAME]
-          description: Register the sandbox MCP gateway (startup fallback)
 
   # Where claude reads shared skills, so the host's store reaches it in
   # the mixin shape too.

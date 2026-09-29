@@ -57,14 +57,14 @@ the image.
 | --- | --- |
 | `kit.yaml` | Composes the seven published components into one workload |
 | `kits/shell/` | Shell workload built from the DHI shell-docker template |
-| `kits/claude-mixin/` | Claude Code 2.1.282 binary, credentials, and hooks |
-| `kits/codex-mixin/` | Codex 0.157.0 package, credentials, and hooks |
+| `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
+| `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | SSH signing permission and Git signing defaults |
 | `kits/github-clone/` | Clone the requested repository into `~/workspace` |
-| `kits/rumdl/` | rumdl 0.2.49 binary with verified release checksums |
+| `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 
-The shell template is pinned by digest. DHI base images and the upstream
+The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
 the kit definitions and recipes, not those third-party projects.
 `NOTICE` records the copied examples' source revision and modifications.
@@ -95,9 +95,9 @@ To build a component locally:
 ```sh
 docker buildx build kits/claude-mixin \
   -f kits/claude-mixin/claude-mixin.yaml \
-  -t claude-mixin:2.1.282 \
+  --pull --no-cache -t claude-mixin:latest \
   --output type=oci,dest=/tmp/claude-layout,tar=false
-kit-tck validate --layout /tmp/claude-layout 2.1.282
+kit-tck validate --layout /tmp/claude-layout latest
 ```
 
 To build the set after publishing the components:
@@ -113,9 +113,13 @@ kit-tck validate --layout /tmp/kit-layout latest
 
 A v3 set requires registry references, so components must be published
 before the set builds. CI uses the current commit SHA instead of `latest`
-to keep the build tied to one checkout. To update an agent, change its
-`args.version.default` and verify its build; the descriptor version and
-installed tool version use that same value.
+to keep the component sources tied to one checkout. Each CI build fetches
+latest stable program releases without cached install layers. Codex and
+Claude use their official native installers; rumdl uses its latest GitHub
+release and published checksum. Run the workflow again to refresh tools.
+Local builds need `--pull --no-cache` for the same behavior.
+
+No agent MCP gateway is registered automatically.
 
 The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution and the GitHub clone source.

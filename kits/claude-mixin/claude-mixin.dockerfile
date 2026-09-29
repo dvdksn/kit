@@ -1,22 +1,12 @@
 # syntax=docker/dockerfile:1
 FROM dhi.io/debian-base:trixie-dev AS build
-ARG CLAUDE_VERSION
-ARG TARGETARCH
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
-# Anthropic publishes a standalone native binary per platform. Fetch it
-# directly: the install.sh path downloads the same file and then runs
-# `claude install` (Bun), which aborts under QEMU on arm64 cross-builds.
-RUN case "$TARGETARCH" in \
-      amd64) platform=linux-x64 ;; \
-      arm64) platform=linux-arm64 ;; \
-      *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
-    esac \
+RUN curl -fsSL https://claude.ai/install.sh -o /tmp/install-claude.sh \
+ && bash /tmp/install-claude.sh latest \
  && mkdir -p /out/usr/local/bin \
- && curl -fsSL "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/${platform}/claude" \
-      -o /out/usr/local/bin/claude \
+ && cp -L /root/.local/bin/claude /out/usr/local/bin/claude \
  && chmod 0755 /out/usr/local/bin/claude \
- && /out/usr/local/bin/claude --version | grep -F "${CLAUDE_VERSION}"
+ && /out/usr/local/bin/claude --version
 
-# The overlay: one binary, landing on any base.
 FROM scratch
 COPY --from=build /out /
