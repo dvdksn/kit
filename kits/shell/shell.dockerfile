@@ -4,5 +4,6 @@
 # command is a login shell; the image config is the runtime contract.
 FROM dhi.io/sbx-templates:shell-docker
 WORKDIR /home/agent/workspace
+ENV SHELL=/usr/bin/bash
 ENTRYPOINT ["bash"]
 CMD ["-l"]
