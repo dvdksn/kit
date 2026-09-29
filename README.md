@@ -52,8 +52,10 @@ The `Publish kits` GitHub Actions workflow runs on pushes to `main` and
 manual dispatch. It uses `GITHUB_TOKEN` with `packages: write`; no registry
 password secret is needed.
 
-1. Native AMD64 and ARM64 runners build and push each local component.
-2. A job combines both architectures under each component's commit tag.
+1. Native AMD64 and ARM64 runners build and push the local mixins.
+2. A job combines both architectures under each mixin's commit tag and
+   builds the shell for both platforms together. This keeps its derived
+   package declarations consistent across architectures.
 3. The set build resolves those exact commit tags and publishes the
    combined workload for both architectures.
 
@@ -79,7 +81,7 @@ To build the set after publishing the components:
 
 ```sh
 docker buildx build . -f kit.yaml \
-  --build-arg KIT_REVISION=latest \
+  --build-arg revision=latest \
   --platform linux/amd64,linux/arm64 \
   --output type=oci,dest=/tmp/kit-layout,tar=false \
   -t kit:1.0.0
