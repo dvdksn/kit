@@ -3,6 +3,9 @@
 # user, git, a CA store) plus a Docker engine. The workload's launch
 # command is a login shell; the image config is the runtime contract.
 FROM dhi.io/sbx-templates:shell-docker
+USER root
+RUN usermod -s /usr/bin/bash agent
+USER 1000
 WORKDIR /home/agent/workspace
 ENV SHELL=/usr/bin/bash
 ENTRYPOINT ["bash"]
