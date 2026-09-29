@@ -41,9 +41,7 @@ jobs:
           set -euo pipefail
           for kit in shell claude-mixin codex-mixin github-ssh git-signing; do
             docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
-  \
             --platform "linux/$ARCH" --provenance=false --push \
-  \
             --tag "$IMAGE:$kit-$GITHUB_SHA-$ARCH"
           done
 
@@ -62,9 +60,7 @@ jobs:
           set -euo pipefail
           for kit in shell claude-mixin codex-mixin github-ssh git-signing; do
             docker buildx imagetools create \
-  \
             --tag "$IMAGE:$kit-$GITHUB_SHA" \
-  \
             --tag "$IMAGE:$kit-latest" \
               "$IMAGE:$kit-$GITHUB_SHA-amd64" \
               "$IMAGE:$kit-$GITHUB_SHA-arm64"
