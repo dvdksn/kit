@@ -40,7 +40,11 @@ jobs:
         run: |
           set -euo pipefail
           for kit in shell claude-mixin codex-mixin github-ssh git-signing; do
-            docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml"               --platform "linux/$ARCH" --provenance=false --push               --tag "$IMAGE:$kit-$GITHUB_SHA-$ARCH"
+            docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
+  \
+            --platform "linux/$ARCH" --provenance=false --push \
+  \
+            --tag "$IMAGE:$kit-$GITHUB_SHA-$ARCH"
           done
 
   component-indexes:
@@ -57,7 +61,13 @@ jobs:
         run: |
           set -euo pipefail
           for kit in shell claude-mixin codex-mixin github-ssh git-signing; do
-            docker buildx imagetools create               --tag "$IMAGE:$kit-$GITHUB_SHA"               --tag "$IMAGE:$kit-latest"               "$IMAGE:$kit-$GITHUB_SHA-amd64"               "$IMAGE:$kit-$GITHUB_SHA-arm64"
+            docker buildx imagetools create \
+  \
+            --tag "$IMAGE:$kit-$GITHUB_SHA" \
+  \
+            --tag "$IMAGE:$kit-latest" \
+              "$IMAGE:$kit-$GITHUB_SHA-amd64" \
+              "$IMAGE:$kit-$GITHUB_SHA-arm64"
           done
 
   set:
@@ -73,4 +83,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push the complete kit set
         run: |
-          docker buildx build . -f kit.yaml             --platform linux/amd64,linux/arm64             --build-arg "KIT_REVISION=$GITHUB_SHA"             --provenance=false --push             --tag "$IMAGE:sha-$GITHUB_SHA"             --tag "$IMAGE:1.0.0" --tag "$IMAGE:latest"
+          docker buildx build . -f kit.yaml \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg "KIT_REVISION=$GITHUB_SHA" \
+            --provenance=false --push \
+            --tag "$IMAGE:sha-$GITHUB_SHA" \
+            --tag "$IMAGE:1.0.0" --tag "$IMAGE:latest"

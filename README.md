@@ -63,9 +63,7 @@ Component tags use `:<component>-<full-commit-sha>` and
 `:<component>-latest`. Use a digest when you need an immutable reference.
 The frontend records component digests in the published set descriptor.
 
-GHCR packages can initially be private even when their source repository
-is public. Set the `kit` package visibility to public in GitHub package
-settings to permit anonymous pulls, or authenticate to GHCR.
+The GHCR package is public and supports anonymous pulls.
 
 To build a component locally:
 
