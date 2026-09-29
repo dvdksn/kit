@@ -75,6 +75,9 @@ jobs:
   set:
     needs: component-indexes
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        agent: [claude, codex]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -83,11 +86,18 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push the complete kit set
+      - name: Build and push the selected agent kit set
+        env:
+          AGENT: ${{ matrix.agent }}
         run: |
+          set -euo pipefail
+          tags=(--tag "$IMAGE:$AGENT-latest" --tag "$IMAGE:$AGENT-$GITHUB_SHA")
+          if [ "$AGENT" = claude ]; then
+            tags+=(--tag "$IMAGE:latest" --tag "$IMAGE:sha-$GITHUB_SHA")
+          fi
           docker buildx build . -f kit.yaml \
             --platform linux/amd64,linux/arm64 \
             --build-arg "revision=$GITHUB_SHA" \
+            --build-arg "agent=$AGENT" \
             --provenance=false --push \
-            --tag "$IMAGE:sha-$GITHUB_SHA" \
-            --tag "$IMAGE:latest"
+            "${tags[@]}"

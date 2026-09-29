@@ -2,10 +2,15 @@
 schemaVersion: "3"
 kind: set
 displayName: dvdksn development shell
-description: Clone a GitHub repository into a shell with Claude, Codex, SSH, Git signing, and rumdl.
+description: Clone a GitHub repository into a shell with a selected agent, SSH, Git signing, and rumdl.
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0]
 args:
+  agent:
+    default: claude
+    enum: [claude, codex]
+    description: Agent mixin and credential to include in the published set
+    buildArg: KIT_AGENT
   repo:
     required: true
     description: GitHub repository in owner/repo form
@@ -25,8 +30,7 @@ args:
     buildArg: KIT_REVISION
 kits:
   - ref: ghcr.io/dvdksn/kit:shell-${{ kit.args.revision }}
-  - ref: ghcr.io/dvdksn/kit:claude-mixin-${{ kit.args.revision }}
-  - ref: ghcr.io/dvdksn/kit:codex-mixin-${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit:${{ kit.args.agent }}-mixin-${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit:github-ssh-${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit:git-signing-${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit:github-clone-${{ kit.args.revision }}
