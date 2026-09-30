@@ -1,7 +1,7 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-GitHub repository cloning, SSH access, Git signing, and rumdl for Markdown.
+SSH access, Git signing, and rumdl for Markdown.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -13,35 +13,21 @@ Use the checked-in environment file to compose the published components at
 sandbox creation:
 
 ```sh
-sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
+sbx env run ./sbxenv.yaml --name docs
 ```
 
 Without `--name`, the sandbox is named `dev`. Use a distinct name for each
 repository you work on.
 
-The clone is inside the sandbox at `/home/agent/workspace` (`~/workspace`),
-and the shell starts there. The environment file declares no host workspace
-mount. Run the command again with the same file and name to reattach.
+The shell starts at at `/home/agent/workspace` (`~/workspace`).
+The environment mounts the project directory as the workspace.
+Run the command again with the same file and name to reattach.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
 published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
 artifacts, so each agent's host OAuth credential can be selected. The GitHub
 and Markdown mixins are published as one tools set because seven individual
 kits exceed Docker's container-label size limit for the composition lock.
-
-`repo` is required and accepts `owner/repo`. To select a branch, tag, or
-commit, add `--env-arg ref=main`. To check out a pull request, use
-`--env-arg pr=123` instead. `ref` and `pr` are mutually exclusive.
-The clone keeps full history. Retrying preserves an existing checkout of
-the same repository; a different repository or unrelated files cause an
-error instead of being overwritten. Use a fresh sandbox to change the
-repository or initial checkout arguments.
-
-Public repositories and pull requests clone without a GitHub token. Bind a
-GitHub credential on the sandbox host for private repositories, GitHub CLI
-operations, and authenticated HTTPS pushes. The clone mixin requests
-proxy-managed GitHub credentials during install and runtime; it never stores
-a token in the image.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
@@ -69,7 +55,6 @@ the image.
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | SSH signing permission and Git signing defaults |
-| `kits/github-clone/` | Clone the requested repository into `~/workspace` |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/tools/` | Published mixin set of GitHub and Markdown tools |
 
@@ -121,5 +106,5 @@ Local builds need `--pull --no-cache` for the same behavior.
 No agent MCP gateway is registered automatically.
 
 The original kit sources and Docker-derived files are Apache-2.0 licensed.
-See `NOTICE` for upstream attribution and the GitHub clone source.
+See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
