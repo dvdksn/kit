@@ -1,7 +1,7 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-SSH access, Git signing, and rumdl for Markdown.
+GitHub cloning, SSH access, Git signing, rumdl for Markdown, and a project-history helper.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -13,15 +13,23 @@ Use the checked-in environment file to compose the published components at
 sandbox creation:
 
 ```sh
-sbx env run ./sbxenv.yaml --name docs
+sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
 ```
 
 Without `--name`, the sandbox is named `dev`. Use a distinct name for each
 repository you work on.
 
-The shell starts at at `/home/agent/workspace` (`~/workspace`).
-The environment mounts the project directory as the workspace.
-Run the command again with the same file and name to reattach.
+The kit clones the selected GitHub repository **inside** the sandbox at
+`/home/agent/workspace` (`~/workspace`), where the shell starts. It preserves an
+existing working tree instead of recloning or resetting it. `ref` and `pr`
+environment arguments select an initial checkout; pass one or leave both empty.
+The environment does not mount a host repository. Run it again with the same
+file, name, and arguments to reattach.
+
+For a project-oriented launcher with automatic conversation persistence, use
+[sup](https://github.com/dvdksn/sup). It supplies the history mount and calls the
+helper before agent use. Running this environment directly leaves history in
+the sandbox unless you explicitly set up persistence.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
 published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
@@ -56,7 +64,9 @@ the image.
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | SSH signing permission and Git signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
-| `kits/tools/` | Published mixin set of GitHub and Markdown tools |
+| `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
+| `kits/project-history/` | Connect selected agent history to a mounted project directory |
+| `kits/tools/` | Published set of GitHub, Markdown, and history mixins |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
@@ -73,7 +83,7 @@ password secret is needed.
 2. A job combines both architectures under each mixin's commit tag and
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
-3. A job combines the four non-agent mixins into one tools artifact.
+3. A job combines the five non-agent mixins into one tools artifact.
 
 Each component has its own GHCR image, such as
 `ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
@@ -82,7 +92,15 @@ this GitHub repository.
 
 Component images have `:<full-commit-sha>` and `:latest` tags. Use a digest
 when you need an immutable reference. The environment file uses the moving
-`:latest` tags. Images previously published under `ghcr.io/dvdksn/kit`
+`:latest` tags, with a `revision` argument to select a commit build:
+
+```sh
+sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs \
+  --env-arg revision=FULL_COMMIT_SHA
+```
+
+Manual builds on feature branches publish commit tags only; they do not move
+`:latest`. Main builds publish both. Images previously published under `ghcr.io/dvdksn/kit`
 remain in GHCR but are no longer updated.
 
 The GHCR packages are public and support anonymous pulls.
@@ -108,3 +126,23 @@ No agent MCP gateway is registered automatically.
 The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
+
+## Project history helper
+
+`sup-history PROJECT /home/agent/project-history` validates the mount's
+`.sup-project.json` identity, then links selected Codex and Claude data paths.
+Codex sessions and archived sessions share a filesystem, and its SQLite state
+uses `codex/sqlite` through the `sqlite_home` setting. Claude projects, sessions,
+file history, shell snapshots, tasks, todos, and command history are included.
+Credentials and agent configuration are never stored in the history mount.
+
+The helper is idempotent and refuses to hide nonempty local state or replace
+conflicting links/configuration. Call it before starting agents. The Claude
+mixin keeps session directories in the sandbox filesystem rather than separate
+kit volumes so those paths can be connected to this mount. Without a host mount,
+those directories last for the sandbox's lifetime.
+
+```sh
+python3 -m unittest discover -s tests -v
+bash -n kits/github-clone/clone.sh kits/github-clone/credential.sh
+```

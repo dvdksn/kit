@@ -9,14 +9,22 @@ permissions:
   packages: write
 
 concurrency:
-  group: publish
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   IMAGE_PREFIX: ghcr.io/dvdksn/kit
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s tests -v
+      - run: bash -n kits/github-clone/clone.sh kits/github-clone/credential.sh
+
   components:
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -39,7 +47,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl; do
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone project-history; do
             docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
             --platform "linux/$ARCH" --pull --no-cache --provenance=false --push \
             --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA-$ARCH"
@@ -58,16 +66,19 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build the shell with a shared package declaration
         run: |
+          set -euo pipefail
+          tags=(--tag "$IMAGE_PREFIX-shell:$GITHUB_SHA")
+          if [ "$GITHUB_REF" = refs/heads/main ]; then tags+=(--tag "$IMAGE_PREFIX-shell:latest"); fi
           docker buildx build kits/shell -f kits/shell/shell.yaml \
             --platform linux/amd64,linux/arm64 --pull --no-cache --provenance=false --push \
-            --tag "$IMAGE_PREFIX-shell:$GITHUB_SHA" --tag "$IMAGE_PREFIX-shell:latest"
+            "${tags[@]}"
       - name: Publish both architectures under each component tag
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl; do
-            docker buildx imagetools create \
-            --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA" \
-            --tag "$IMAGE_PREFIX-$kit:latest" \
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone project-history; do
+            tags=(--tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA")
+            if [ "$GITHUB_REF" = refs/heads/main ]; then tags+=(--tag "$IMAGE_PREFIX-$kit:latest"); fi
+            docker buildx imagetools create "${tags[@]}" \
               "$IMAGE_PREFIX-$kit:$GITHUB_SHA-amd64" \
               "$IMAGE_PREFIX-$kit:$GITHUB_SHA-arm64"
           done
@@ -85,9 +96,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push the tools mixin set
         run: |
+          set -euo pipefail
+          tags=(--tag "$IMAGE_PREFIX-tools:$GITHUB_SHA")
+          if [ "$GITHUB_REF" = refs/heads/main ]; then tags+=(--tag "$IMAGE_PREFIX-tools:latest"); fi
           docker buildx build kits/tools -f kits/tools/tools.yaml \
             --platform linux/amd64,linux/arm64 \
             --build-arg "revision=$GITHUB_SHA" \
             --provenance=false --push \
-            --tag "$IMAGE_PREFIX-tools:$GITHUB_SHA" \
-            --tag "$IMAGE_PREFIX-tools:latest"
+            "${tags[@]}"

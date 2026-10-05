@@ -13,3 +13,9 @@ https://github.com/docker/docs
 Revision: de3bdf51fc36c6bc64a8ead92834fdfd58da6454
 Modified from a v2 install hook to a v3 binary overlay using the latest
 release and its published checksum.
+
+GitHub clone helper adapted from cdupuis/sbx-kits/github-clone:
+https://github.com/cdupuis/sbx-kits
+Modified for v3, a fixed clone directory, full Git history, preservation of
+existing work, and composition in the local tools set.
+Project history helper and its tests are original to dvdksn/kit.

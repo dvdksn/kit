@@ -2,7 +2,7 @@
 schemaVersion: "3"
 kind: set
 displayName: Development tools
-description: SSH access, Git signing, and Markdown linting mixins.
+description: GitHub cloning, SSH access, signing, Markdown tools, and project history.
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0]
 args:
@@ -11,7 +11,20 @@ args:
     pattern: '^[a-zA-Z0-9_.-]+$'
     description: Component build tag; CI uses the full Git commit SHA
     buildArg: KIT_REVISION
+  repo:
+    required: true
+    description: GitHub repository in owner/repo form
+  ref:
+    default: ""
+  pr:
+    default: ""
 kits:
   - ref: ghcr.io/dvdksn/kit-github-ssh:${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit-git-signing:${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit-rumdl:${{ kit.args.revision }}
+  - ref: ghcr.io/dvdksn/kit-github-clone:${{ kit.args.revision }}
+    args:
+      repo: ${{ kit.args.repo }}
+      ref: ${{ kit.args.ref }}
+      pr: ${{ kit.args.pr }}
+  - ref: ghcr.io/dvdksn/kit-project-history:${{ kit.args.revision }}
