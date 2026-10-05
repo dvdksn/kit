@@ -14,10 +14,13 @@ args:
   repo:
     required: true
     description: GitHub repository in owner/repo form
+    pattern: '^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$'
   ref:
     default: ""
+    pattern: '^([A-Za-z0-9][A-Za-z0-9._/-]*)?$'
   pr:
     default: ""
+    pattern: '^[0-9]*$'
 kits:
   - ref: ghcr.io/dvdksn/kit-github-ssh:${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit-git-signing:${{ kit.args.revision }}
