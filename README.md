@@ -22,7 +22,9 @@ repository you work on.
 The kit clones the selected GitHub repository **inside** the sandbox at
 `/home/agent/workspace` (`~/workspace`), where the shell starts. It preserves an
 existing working tree instead of recloning or resetting it. The only clone input
-is `repo`: creation clones the default branch with `--depth=1`. Use
+is `repo`: creation clones the default branch with `--depth=1`. Git HTTPS auth
+uses upstream's `gh auth git-credential` helper. The separate clone script holds
+the retry checks that preserve existing work. Use
 `git fetch --unshallow` inside the sandbox when you need older history.
 The environment does not mount a host repository. Run it again with the same
 file, name, and arguments to reattach.
@@ -140,5 +142,5 @@ Running the kit directly keeps conversations inside the sandbox by default.
 
 ```sh
 python3 -m unittest discover -s tests -v
-bash -n kits/github-clone/clone.sh kits/github-clone/credential.sh
+bash -n kits/github-clone/clone.sh
 ```

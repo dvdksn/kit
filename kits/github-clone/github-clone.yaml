@@ -28,6 +28,7 @@ capabilities:
         proxyManaged: true
         inject:
           - {domain: api.github.com, header: Authorization, format: "Bearer %s"}
+          # Git HTTPS uses Basic auth with a fixed username, as upstream does.
           - {domain: github.com, header: Authorization, username: x-access-token, format: "%s"}
   - type: com.docker.sandbox/credential@1
     optional: true
@@ -39,6 +40,7 @@ capabilities:
         proxyManaged: true
         inject:
           - {domain: api.github.com, header: Authorization, format: "Bearer %s"}
+          # Git HTTPS uses Basic auth with a fixed username, as upstream does.
           - {domain: github.com, header: Authorization, username: x-access-token, format: "%s"}
   - type: com.docker.sandbox/lifecycle@1
     config:
@@ -48,7 +50,7 @@ capabilities:
             mkdir -p /home/agent/workspace
             chown agent:agent /home/agent/workspace
             git config --system --replace-all credential.https://github.com.helper ''
-            git config --system --add credential.https://github.com.helper /usr/local/libexec/github-credential
+            git config --system --add credential.https://github.com.helper '!gh auth git-credential'
           user: "0"
           description: Prepare the clone destination and GitHub credential helper
         - command:

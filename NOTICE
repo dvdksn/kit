@@ -16,5 +16,6 @@ release and its published checksum.
 
 GitHub clone helper adapted from cdupuis/sbx-kits/github-clone:
 https://github.com/cdupuis/sbx-kits
+Revision: d71f2269757dc27077818d5296bf2eb91e61c3a7
 Modified for v3, a fixed clone directory, repository-only input, shallow cloning, preservation of
 existing work, and composition in the local tools set.
