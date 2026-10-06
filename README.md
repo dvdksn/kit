@@ -44,7 +44,9 @@ Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
-and signing. Configure your Git author name and email as usual.
+and signing. The signing mixin requests `git-identity@1`, so the runtime
+supplies your Git author name and email as sandbox defaults. Repository-local
+identity settings still take precedence.
 
 Claude and Codex use credentials bound through the sandbox host. Their
 credential capabilities are optional; the copied hooks also support an
@@ -65,7 +67,7 @@ the image.
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
-| `kits/git-signing/` | SSH signing permission and Git signing defaults |
+| `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
 | `kits/tools/` | Published set of GitHub and Markdown mixins |
