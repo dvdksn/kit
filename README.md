@@ -45,8 +45,12 @@ Markdown and `rumdl check <file>` to lint it.
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
 and signing. The signing mixin requests `git-identity@1`, so the runtime
-supplies your Git author name and email as sandbox defaults. Repository-local
-identity settings still take precedence.
+is responsible for supplying your Git author name and email as sandbox
+defaults. Repository-local identity settings still take precedence. In a live
+check, SBX v0.45.1 accepted the required declaration but left both defaults
+unset despite a configured host identity. That runtime does not yet provide
+the requested behavior; configure the guest identity until runtime support
+is available.
 
 Claude and Codex use credentials bound through the sandbox host. Their
 credential capabilities are optional; the copied hooks also support an
