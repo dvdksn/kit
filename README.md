@@ -1,7 +1,7 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-SSH access, Git signing, and rumdl for Markdown.
+GitHub cloning, SSH access, Git signing, and rumdl for Markdown.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -13,15 +13,26 @@ Use the checked-in environment file to compose the published components at
 sandbox creation:
 
 ```sh
-sbx env run ./sbxenv.yaml --name docs
+sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs
 ```
 
 Without `--name`, the sandbox is named `dev`. Use a distinct name for each
 repository you work on.
 
-The shell starts at at `/home/agent/workspace` (`~/workspace`).
-The environment mounts the project directory as the workspace.
-Run the command again with the same file and name to reattach.
+The kit clones the selected GitHub repository **inside** the sandbox at
+`/home/agent/workspace` (`~/workspace`), where the shell starts. It preserves an
+existing working tree instead of recloning or resetting it. The only clone input
+is `repo`: creation clones the default branch with `--depth=1`. Git HTTPS auth
+uses upstream's `gh auth git-credential` helper. The separate clone script holds
+the retry checks that preserve existing work. Use
+`git fetch --unshallow` inside the sandbox when you need older history.
+The environment does not mount a host repository. Run it again with the same
+file, name, and arguments to reattach.
+
+For a project-oriented launcher with automatic conversation persistence, use
+[sup](https://github.com/dvdksn/sup). It manages the native `sbx mount` attachment and selected agent state before
+agent use. Running this environment directly leaves history in
+the sandbox unless you explicitly set up persistence.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
 published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
@@ -33,7 +44,13 @@ Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
-and signing. Configure your Git author name and email as usual.
+and signing. The signing mixin requests `git-identity@1`, so the runtime
+is responsible for supplying your Git author name and email as sandbox
+defaults. Repository-local identity settings still take precedence. In a live
+check, SBX v0.45.1 accepted the required declaration but left both defaults
+unset despite a configured host identity. That runtime does not yet provide
+the requested behavior; configure the guest identity until runtime support
+is available.
 
 Claude and Codex use credentials bound through the sandbox host. Their
 credential capabilities are optional; the copied hooks also support an
@@ -54,9 +71,10 @@ the image.
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
-| `kits/git-signing/` | SSH signing permission and Git signing defaults |
+| `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
-| `kits/tools/` | Published mixin set of GitHub and Markdown tools |
+| `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
+| `kits/tools/` | Published set of GitHub and Markdown mixins |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
@@ -82,7 +100,15 @@ this GitHub repository.
 
 Component images have `:<full-commit-sha>` and `:latest` tags. Use a digest
 when you need an immutable reference. The environment file uses the moving
-`:latest` tags. Images previously published under `ghcr.io/dvdksn/kit`
+`:latest` tags, with a `revision` argument to select a commit build:
+
+```sh
+sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs \
+  --env-arg revision=FULL_COMMIT_SHA
+```
+
+Manual builds on feature branches publish commit tags only; they do not move
+`:latest`. Main builds publish both. Images previously published under `ghcr.io/dvdksn/kit`
 remain in GHCR but are no longer updated.
 
 The GHCR packages are public and support anonymous pulls.
@@ -108,3 +134,19 @@ No agent MCP gateway is registered automatically.
 The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
+
+## Agent context and history
+
+The shell provides a brief environment description and the project location.
+The signing mixin explains its Git-only SSH signing constraint. Other mixins
+install and configure tools without adding routine agent instructions.
+
+History persistence belongs to the host launcher. There is no history kit or
+installed history command. Sup uses the native `sbx mount` command to attach a
+per-project host directory, then connects selected agent paths before use.
+Running the kit directly keeps conversations inside the sandbox by default.
+
+```sh
+python3 -m unittest discover -s tests -v
+bash -n kits/github-clone/clone.sh
+```

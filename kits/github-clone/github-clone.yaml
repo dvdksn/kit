@@ -1,0 +1,62 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: mixin
+displayName: GitHub clone
+description: Clone a GitHub repository into /home/agent/workspace before the shell starts.
+sourceUrl: https://github.com/dvdksn/kit
+version: "1.0.0"
+args:
+  repo:
+    required: true
+    description: GitHub repository in owner/repo form
+    pattern: '^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$'
+capabilities:
+  # Clone runs at install; gh and later Git operations need runtime access too.
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      install:
+        allow: [api.github.com, github.com, codeload.github.com, raw.githubusercontent.com]
+      runtime:
+        allow: [api.github.com, github.com, codeload.github.com, raw.githubusercontent.com]
+  - type: com.docker.sandbox/credential@1
+    optional: true
+    config:
+      service: github
+      phase: install
+      apiKey:
+        name: GH_TOKEN
+        proxyManaged: true
+        inject:
+          - {domain: api.github.com, header: Authorization, format: "Bearer %s"}
+          # Git HTTPS uses Basic auth with a fixed username, as upstream does.
+          - {domain: github.com, header: Authorization, username: x-access-token, format: "%s"}
+  - type: com.docker.sandbox/credential@1
+    optional: true
+    config:
+      service: github
+      phase: runtime
+      apiKey:
+        name: GH_TOKEN
+        proxyManaged: true
+        inject:
+          - {domain: api.github.com, header: Authorization, format: "Bearer %s"}
+          # Git HTTPS uses Basic auth with a fixed username, as upstream does.
+          - {domain: github.com, header: Authorization, username: x-access-token, format: "%s"}
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            set -eu
+            mkdir -p /home/agent/workspace
+            chown agent:agent /home/agent/workspace
+            git config --system --replace-all credential.https://github.com.helper ''
+            git config --system --add credential.https://github.com.helper '!gh auth git-credential'
+          user: "0"
+          description: Prepare the clone destination and GitHub credential helper
+        - command:
+            - bash
+            - /usr/local/libexec/github-clone
+            - ${{ kit.args.repo }}
+          user: agent
+          env: [GH_TOKEN, SBX_CRED_GITHUB_MODE, HTTP_PROXY, HTTPS_PROXY, NO_PROXY, http_proxy, https_proxy, no_proxy]
+          description: Clone the requested repository as the agent user

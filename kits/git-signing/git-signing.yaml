@@ -3,8 +3,8 @@ schemaVersion: "3"
 sourceUrl: https://github.com/dvdksn/kit
 displayName: Git commit signing
 description: >-
-  Signs the agent's git commits and tags with the user's SSH key, through
-  the SSH agent the runtime exposes. The agent may make git signatures and
+  Attributes commits to the user's runtime-provided Git identity and signs
+  commits and tags with their SSH key through the exposed SSH agent. The agent may make git signatures and
   nothing else: no logins, no other namespaces, and no network.
 
 kind: mixin
@@ -12,6 +12,9 @@ provides: ["git-signing@1.0.0"]
 version: "1.0.0"
 
 capabilities:
+  - type: com.docker.sandbox/git-identity@1
+    description: Attribute commits to the user's Git identity
+
   # Git's SSH signing makes namespaced signatures in the namespace `git`
   # and nothing else, so that is the whole grant: the key cannot log in
   # anywhere or sign in another namespace from this sandbox. Signing is

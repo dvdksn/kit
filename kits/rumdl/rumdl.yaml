@@ -6,6 +6,3 @@ description: Markdown linting and formatting with the latest stable rumdl releas
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0]
 capabilities:
-  - type: com.docker.sandbox/agent-context@1
-    config:
-      contentFile: ./rumdl-context.md
