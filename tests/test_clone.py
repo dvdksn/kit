@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 class GitHubClone(unittest.TestCase):
-    def test_clone_ref_and_preserve_existing_work(self):
+    def test_shallow_default_branch_and_preserve_existing_work(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             upstream = root / 'upstream'
@@ -31,20 +31,22 @@ class GitHubClone(unittest.TestCase):
             real_git = shutil.which('git')
             (bin/'git').write_text(f'''#!/bin/sh
 if [ "$1" = clone ]; then
-  "{real_git}" clone -- "$CLONE_TEST_UPSTREAM" "$4" || exit $?
-  "{real_git}" -C "$4" remote set-url origin "$3"
+  "{real_git}" clone --depth=1 -- "$CLONE_TEST_UPSTREAM" "$5" || exit $?
+  "{real_git}" -C "$5" remote set-url origin "$4"
 else
   exec "{real_git}" "$@"
 fi
 ''')
             (bin/'git').chmod(0o700)
-            env = os.environ | {'PATH':str(bin)+os.pathsep+os.environ['PATH'], 'CLONE_TEST_UPSTREAM':str(upstream)}
+            env = os.environ | {'PATH':str(bin)+os.pathsep+os.environ['PATH'], 'CLONE_TEST_UPSTREAM':upstream.as_uri()}
             def run(*args): return subprocess.run(['bash',str(script),'owner/repo',*args],env=env,capture_output=True,text=True)
-            result = run('feature')
+            result = run()
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertEqual((workspace/'README').read_text(),'feature')
+            self.assertEqual(git('-C',str(workspace),'rev-parse','--is-shallow-repository'),'true')
+            self.assertEqual(git('-C',str(workspace),'rev-list','--count','HEAD'),'1')
             (workspace/'README').write_text('uncommitted work')
-            result = run('main')
+            result = run()
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertEqual((workspace/'README').read_text(),'uncommitted work')
             result = run('feature','123')

@@ -10,14 +10,6 @@ args:
     required: true
     description: GitHub repository in owner/repo form
     pattern: '^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$'
-  ref:
-    default: ""
-    description: Optional branch, tag, or commit to check out
-    pattern: '^([A-Za-z0-9][A-Za-z0-9._/-]*)?$'
-  pr:
-    default: ""
-    description: Optional pull request number; mutually exclusive with ref
-    pattern: '^[0-9]*$'
 capabilities:
   # Clone runs at install; gh and later Git operations need runtime access too.
   - type: com.docker.sandbox/network-policy@1
@@ -63,11 +55,6 @@ capabilities:
             - bash
             - /usr/local/libexec/github-clone
             - ${{ kit.args.repo }}
-            - ${{ kit.args.ref }}
-            - ${{ kit.args.pr }}
           user: agent
           env: [GH_TOKEN, SBX_CRED_GITHUB_MODE, HTTP_PROXY, HTTPS_PROXY, NO_PROXY, http_proxy, https_proxy, no_proxy]
           description: Clone the requested repository as the agent user
-  - type: com.docker.sandbox/agent-context@1
-    config:
-      contentFile: ./github-clone-context.md

@@ -1,7 +1,7 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-GitHub cloning, SSH access, Git signing, rumdl for Markdown, and a project-history helper.
+GitHub cloning, SSH access, Git signing, and rumdl for Markdown.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -21,14 +21,15 @@ repository you work on.
 
 The kit clones the selected GitHub repository **inside** the sandbox at
 `/home/agent/workspace` (`~/workspace`), where the shell starts. It preserves an
-existing working tree instead of recloning or resetting it. `ref` and `pr`
-environment arguments select an initial checkout; pass one or leave both empty.
+existing working tree instead of recloning or resetting it. The only clone input
+is `repo`: creation clones the default branch with `--depth=1`. Use
+`git fetch --unshallow` inside the sandbox when you need older history.
 The environment does not mount a host repository. Run it again with the same
 file, name, and arguments to reattach.
 
 For a project-oriented launcher with automatic conversation persistence, use
-[sup](https://github.com/dvdksn/sup). It supplies the history mount and calls the
-helper before agent use. Running this environment directly leaves history in
+[sup](https://github.com/dvdksn/sup). It manages the native `sbx mount` attachment and selected agent state before
+agent use. Running this environment directly leaves history in
 the sandbox unless you explicitly set up persistence.
 
 On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
@@ -65,8 +66,7 @@ the image.
 | `kits/git-signing/` | SSH signing permission and Git signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
-| `kits/project-history/` | Connect selected agent history to a mounted project directory |
-| `kits/tools/` | Published set of GitHub, Markdown, and history mixins |
+| `kits/tools/` | Published set of GitHub and Markdown mixins |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
@@ -83,7 +83,7 @@ password secret is needed.
 2. A job combines both architectures under each mixin's commit tag and
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
-3. A job combines the five non-agent mixins into one tools artifact.
+3. A job combines the four non-agent mixins into one tools artifact.
 
 Each component has its own GHCR image, such as
 `ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
@@ -127,20 +127,16 @@ The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
 
-## Project history helper
+## Agent context and history
 
-`sup-history PROJECT /home/agent/project-history` validates the mount's
-`.sup-project.json` identity, then links selected Codex and Claude data paths.
-Codex sessions and archived sessions share a filesystem, and its SQLite state
-uses `codex/sqlite` through the `sqlite_home` setting. Claude projects, sessions,
-file history, shell snapshots, tasks, todos, and command history are included.
-Credentials and agent configuration are never stored in the history mount.
+The shell provides a brief environment description and the project location.
+The signing mixin explains its Git-only SSH signing constraint. Other mixins
+install and configure tools without adding routine agent instructions.
 
-The helper is idempotent and refuses to hide nonempty local state or replace
-conflicting links/configuration. Call it before starting agents. The Claude
-mixin keeps session directories in the sandbox filesystem rather than separate
-kit volumes so those paths can be connected to this mount. Without a host mount,
-those directories last for the sandbox's lifetime.
+History persistence belongs to the host launcher. There is no history kit or
+installed history command. Sup uses the native `sbx mount` command to attach a
+per-project host directory, then connects selected agent paths before use.
+Running the kit directly keeps conversations inside the sandbox by default.
 
 ```sh
 python3 -m unittest discover -s tests -v

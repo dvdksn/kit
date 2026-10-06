@@ -37,13 +37,12 @@ capabilities:
           - deb.debian.org
           - dhi.io
 
-  # The workload owns the context-file profile; composed mixins fan their
-  # guidance out beside it.
+  # Keep the shared environment description in the workload.
   - type: com.docker.sandbox/agent-context@1
     config:
       filename: AGENTS.md
       content: |
         This is a plain shell sandbox on the shell-docker template: bash,
         git, apt, Docker (compose/buildx), curl, gh, jq, make, gcc,
-        Python 3, and Node/npm. Install more with apt; composed kits list
-        their own capabilities below.
+        Python 3, and Node/npm. Install more with apt.
+        The project working directory is /home/agent/workspace.

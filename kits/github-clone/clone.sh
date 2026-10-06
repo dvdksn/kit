@@ -2,12 +2,9 @@
 # Adapted from cdupuis/sbx-kits/github-clone for a fixed workspace and v3.
 set -euo pipefail
 repo=${1:?expected owner/repo}
-ref=${2:-}
-pr=${3:-}
 dir=/home/agent/workspace
-
-if [[ -n "$ref" && -n "$pr" ]]; then
-  echo 'github-clone: ref and pr are mutually exclusive.' >&2
+if [[ $# != 1 ]]; then
+  echo 'github-clone: expected one owner/repo argument.' >&2
   exit 1
 fi
 
@@ -34,12 +31,5 @@ if [[ -n $(ls -A "$dir") ]]; then
   exit 1
 fi
 
-# Keep full history for PR comparisons and commit-SHA checkouts. A failed
-# clone is never followed by deletion of an existing workspace.
-git clone -- "$url" "$dir"
-if [[ -n "$ref" ]]; then
-  git -C "$dir" checkout "$ref"
-elif [[ -n "$pr" ]]; then
-  git -C "$dir" fetch origin "refs/pull/$pr/head:refs/remotes/origin/pr/$pr"
-  git -C "$dir" checkout --detach "refs/remotes/origin/pr/$pr"
-fi
+# Start with the default branch only. Fetch more branches/history when needed.
+git clone --depth=1 -- "$url" "$dir"

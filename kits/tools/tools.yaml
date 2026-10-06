@@ -2,7 +2,7 @@
 schemaVersion: "3"
 kind: set
 displayName: Development tools
-description: GitHub cloning, SSH access, signing, Markdown tools, and project history.
+description: GitHub cloning, SSH access, signing, Markdown tools.
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0]
 args:
@@ -15,12 +15,6 @@ args:
     required: true
     description: GitHub repository in owner/repo form
     pattern: '^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$'
-  ref:
-    default: ""
-    pattern: '^([A-Za-z0-9][A-Za-z0-9._/-]*)?$'
-  pr:
-    default: ""
-    pattern: '^[0-9]*$'
 kits:
   - ref: ghcr.io/dvdksn/kit-github-ssh:${{ kit.args.revision }}
   - ref: ghcr.io/dvdksn/kit-git-signing:${{ kit.args.revision }}
@@ -28,6 +22,3 @@ kits:
   - ref: ghcr.io/dvdksn/kit-github-clone:${{ kit.args.revision }}
     args:
       repo: ${{ kit.args.repo }}
-      ref: ${{ kit.args.ref }}
-      pr: ${{ kit.args.pr }}
-  - ref: ghcr.io/dvdksn/kit-project-history:${{ kit.args.revision }}

@@ -58,7 +58,3 @@ capabilities:
               printf '\n%s\n' "$key" >> "$HOME/.ssh/known_hosts"
             done < /home/agent/.ssh/github-ssh-known-hosts
           description: Merge GitHub host keys while preserving existing entries
-
-  - type: com.docker.sandbox/agent-context@1
-    config:
-      contentFile: ./github-ssh-context.md
