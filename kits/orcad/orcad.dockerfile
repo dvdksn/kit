@@ -31,7 +31,10 @@ RUN mkdir -p /test/out/cli /test/config/scripts \
 FROM dhi.io/sbx-templates:shell-docker AS test
 COPY --from=build /out/ /opt/orca/
 COPY --chmod=755 orcad /usr/local/bin/orcad
+COPY --chmod=755 start.sh /usr/local/libexec/orcad-start
+COPY pairing-url.mjs /opt/orca/pairing-url.mjs
 COPY --from=test-tools /test/ /tmp/orca-smoke/
+COPY service-smoke.mjs /tmp/orca-smoke/service-smoke.mjs
 USER root
 RUN ln -s /opt/orca/orcad /tmp/orca-smoke/out/orcad
 USER 1000:1000
@@ -40,7 +43,11 @@ RUN --network=none orcad --orcad-smoke-load-check \
     && runtime_sha=$(cat /opt/orca/orcad/.runtime-node) \
     && "/opt/orca/runtimes/node-$runtime_sha/bin/node" \
        /tmp/orca-smoke/config/scripts/runtime-serve-terminal-smoke.mjs --target orcad
+RUN --network=none runtime_sha=$(cat /opt/orca/orcad/.runtime-node) \
+    && "/opt/orca/runtimes/node-$runtime_sha/bin/node" /tmp/orca-smoke/service-smoke.mjs
 
 FROM scratch
 COPY --from=build /out/ /opt/orca/
 COPY --chmod=755 orcad /usr/local/bin/orcad
+COPY --chmod=755 start.sh /usr/local/libexec/orcad-start
+COPY pairing-url.mjs /opt/orca/pairing-url.mjs

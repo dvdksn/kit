@@ -138,27 +138,42 @@ Add the optional server mixin to your environment's `kits` list:
   - source: ghcr.io/dvdksn/kit-orcad:latest
 ```
 
-It installs `orcad` and its own Node runtime, built from pinned Orca v1.4.222
-sources. Start it as the sandbox's `agent` user. From the host, this command
-starts the server and keeps an SSH tunnel open:
+The mixin starts and supervises `orcad` as the sandbox's `agent` user on every
+boot. Repeated startup leaves the existing service running; a crashed server
+is restarted. The long-running capability keeps the sandbox running after its
+last client disconnects. State and pairing grants stay under `~/.orca`.
+
+The server listens on sandbox loopback at port 6800. Open an SSH tunnel from
+the host:
 
 ```sh
-ssh -L 6800:127.0.0.1:6800 docker-docs.sbx 'orcad --port 6800 --json'
+ssh -N -L 6800:127.0.0.1:6800 docker-docs.sbx
 ```
 
-Use the `pairing.url` in its ready JSON to register the environment on the host:
+Pair once from another host terminal:
 
 ```sh
-orca environment add --name docker-docs --pairing-code 'orca://pair?code=...'
+orca environment add --name docker-docs \
+  --pairing-code "$(sbx exec docker-docs orcad pairing-url)"
 ```
 
-Keep the SSH command running while using the environment. The server listens
-on sandbox loopback; the mixin requests no published ports. State stays in the
-sandbox under `~/.orca`. The optional browser binary is omitted.
+Reopen the tunnel if its SSH connection closes. Pairing survives server and
+sandbox restarts while `~/.orca` is retained. SSH to `docker-docs.sbx` starts a
+stopped sandbox, and its lifecycle hook starts the server. Orca's paired-server
+connection uses the saved WebSocket endpoint; it does not open that SSH tunnel
+or wake SBX itself. Orca's separate native SSH mode manages its own connection
+and remote runtime rather than adopting this kit's paired server.
+
+For another local tunnel port, rewrite only the advertised endpoint when
+retrieving the pairing URL, for example `orcad pairing-url ws://127.0.0.1:16800`.
+The mixin requests no published ports. Its server and bundled Node runtime are
+built from pinned Orca v1.4.222 sources; the optional browser binary is omitted.
 
 The `Test orcad` workflow builds on native amd64 and arm64 runners. It pairs a
 client, adds a temporary repo, creates a worktree, and runs a terminal command
-in the shell base image. Run the same test locally on your native architecture:
+in the shell base image. It also checks repeated startup, crash recovery, and
+reuse of the original pairing after a restart. Run the same test locally on
+your native architecture:
 
 ```sh
 docker buildx build kits/orcad -f kits/orcad/orcad.dockerfile --target test

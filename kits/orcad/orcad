@@ -1,4 +1,8 @@
 #!/bin/sh
 set -eu
 runtime_sha=$(cat /opt/orca/orcad/.runtime-node)
+if [ "${1:-}" = pairing-url ]; then
+    shift
+    exec "/opt/orca/runtimes/node-$runtime_sha/bin/node" /opt/orca/pairing-url.mjs "$@"
+fi
 exec "/opt/orca/runtimes/node-$runtime_sha/bin/node" /opt/orca/orcad/orcad.js "$@"

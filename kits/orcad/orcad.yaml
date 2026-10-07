@@ -6,4 +6,12 @@ version: "1.4.222"
 description: Orca's Node server with a bundled runtime; connect over SSH.
 sourceUrl: https://github.com/dvdksn/kit
 licenses: [Apache-2.0, MIT]
-capabilities: []
+capabilities:
+  - type: com.docker.sandbox/long-running@1
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      startup:
+        - command: [/usr/local/libexec/orcad-start]
+          user: agent
+          background: true
+          description: Start and supervise the Orca server
