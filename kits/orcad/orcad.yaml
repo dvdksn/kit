@@ -1,0 +1,9 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: mixin
+displayName: Orcad
+version: "1.4.222"
+description: Orca's Node server with a bundled runtime; connect over SSH.
+sourceUrl: https://github.com/dvdksn/kit
+licenses: [Apache-2.0, MIT]
+capabilities: []

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+runtime_sha=$(cat /opt/orca/orcad/.runtime-node)
+exec "/opt/orca/runtimes/node-$runtime_sha/bin/node" /opt/orca/orcad/orcad.js "$@"

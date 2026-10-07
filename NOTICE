@@ -19,3 +19,10 @@ https://github.com/cdupuis/sbx-kits
 Revision: d71f2269757dc27077818d5296bf2eb91e61c3a7
 Modified for v3, a fixed clone directory, repository-only input, shallow cloning, preservation of
 existing work, and composition in the local tools set.
+
+Orcad is built from stablyai/orca v1.4.222 (MIT):
+https://github.com/stablyai/orca
+Revision: 4bb6f2072b07c1f0664b809551f77754700570e4
+The server sources are unchanged. The mixin packages the Node server and its
+pinned Node runtime; it omits the optional agent-browser binary. Orca, Node,
+and npm dependency license notices are included under /opt/orca/licenses.

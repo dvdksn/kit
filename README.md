@@ -74,6 +74,7 @@ the image.
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
+| `kits/orcad/` | Optional Orca Node server with its own Node runtime |
 | `kits/tools/` | Published set of GitHub and Markdown mixins |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
@@ -123,11 +124,45 @@ docker buildx build kits/claude-mixin \
 kit-tck validate --layout /tmp/claude-layout latest
 ```
 
-Each CI build fetches the latest stable program releases without cached
+The agent and rumdl builds fetch the latest stable program releases without cached
 install layers. Codex and Claude use their official native installers; rumdl
 uses its latest GitHub release and published checksum. Run the workflow again
 to refresh tools.
 Local builds need `--pull --no-cache` for the same behavior.
+
+## Orca
+
+Add the optional server mixin to your environment's `kits` list:
+
+```yaml
+  - source: ghcr.io/dvdksn/kit-orcad:latest
+```
+
+It installs `orcad` and its own Node runtime, built from pinned Orca v1.4.222
+sources. Start it as the sandbox's `agent` user. From the host, this command
+starts the server and keeps an SSH tunnel open:
+
+```sh
+ssh -L 6800:127.0.0.1:6800 docker-docs.sbx 'orcad --port 6800 --json'
+```
+
+Use the `pairing.url` in its ready JSON to register the environment on the host:
+
+```sh
+orca environment add --name docker-docs --pairing-code 'orca://pair?code=...'
+```
+
+Keep the SSH command running while using the environment. The server listens
+on sandbox loopback; the mixin requests no published ports. State stays in the
+sandbox under `~/.orca`. The optional browser binary is omitted.
+
+The `Test orcad` workflow builds on native amd64 and arm64 runners. It pairs a
+client, adds a temporary repo, creates a worktree, and runs a terminal command
+in the shell base image. Run the same test locally on your native architecture:
+
+```sh
+docker buildx build kits/orcad -f kits/orcad/orcad.dockerfile --target test
+```
 
 No agent MCP gateway is registered automatically.
 
