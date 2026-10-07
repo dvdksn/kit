@@ -13,7 +13,6 @@ RUN curl -fsSL https://chatgpt.com/codex/install.sh -o /tmp/install-codex.sh \
 
 # Keep shell preferences separate from additive image environment variables.
 RUN mkdir -p /out/etc/profile.d && cat > /out/etc/profile.d/codex-env.sh <<'PROFILE'
-export BROWSER=xdg-open
 export CODEX_HOME=/home/agent/.codex
 export IS_SANDBOX=1
 export GIT_TERMINAL_PROMPT=0
