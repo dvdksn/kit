@@ -5,22 +5,15 @@ displayName: Shell
 author: "Docker, Inc."
 description: >-
   A plain shell sandbox on the shell-docker template — bash, git, apt, Docker,
-  plus common CLI tooling (curl, gh, jq, make, gcc, Python, Node). The base
+  plus common CLI tooling (curl, gh, jq, a C/C++ toolchain, Python, Node). The base
   workload agent mixins layer onto; it ships no agent and declares no
   credentials.
 
 kind: workload
 version: "1.0.0"
 
-# No provides. This kit installs nothing of its own — its content is the
-# template image — so everything it carries is read out of that image at
+# No manual provides. Installed packages are read out of the image at
 # publish and stated as deb/<package>@<version> (§9.6).
-#
-# Thirteen tool names used to be listed here, and none of them had a
-# version to give. An unversioned provide takes the descriptor's own
-# version: as its fallback, so this kit published bash@1.0.0 and
-# node@1.0.0 — its release number wearing their names. dpkg knows what
-# they are actually at.
 
 capabilities:
   # This workload is an agent sandbox: the host launches the agent rather
@@ -43,6 +36,6 @@ capabilities:
       filename: AGENTS.md
       content: |
         This is a plain shell sandbox on the shell-docker template: bash,
-        git, apt, Docker (compose/buildx), curl, gh, jq, make, gcc,
+        git, apt, Docker (compose/buildx), curl, gh, jq, make, gcc, g++,
         Python 3, and Node/npm. Install more with apt.
         The project working directory is /home/agent/workspace.

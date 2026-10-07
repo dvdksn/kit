@@ -22,14 +22,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: python3 -m unittest discover -s tests -v
       - run: bash -n kits/github-clone/clone.sh
-      - run: sh -n kits/orcad/orcad
-      - run: sh -n kits/orcad/start.sh
-
-  orcad-test:
-    uses: ./.github/workflows/orcad.yml
 
   components:
-    needs: [test, orcad-test]
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -52,7 +47,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone orcad; do
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone; do
             docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
             --platform "linux/$ARCH" --pull --no-cache --provenance=false --push \
             --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA-$ARCH"
@@ -80,7 +75,7 @@ jobs:
       - name: Publish both architectures under each component tag
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone orcad; do
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone; do
             tags=(--tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA")
             if [ "$GITHUB_REF" = refs/heads/main ]; then tags+=(--tag "$IMAGE_PREFIX-$kit:latest"); fi
             docker buildx imagetools create "${tags[@]}" \
