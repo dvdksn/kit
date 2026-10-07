@@ -9,5 +9,6 @@ RUN usermod -s /usr/bin/bash agent
 USER 1000
 WORKDIR /home/agent/workspace
 ENV SHELL=/usr/bin/bash
+ENV BROWSER=xdg-open
 ENTRYPOINT ["bash"]
 CMD ["-l"]
