@@ -42,12 +42,6 @@ kits exceed Docker's container-label size limit for the composition lock.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
-
-The shell includes `build-essential` alongside Python and Node/npm so tools can
-compile native extensions. To use Orca, add `<sandbox>.sbx` in its SSH settings.
-Orca installs and manages its own remote relay; its npm fallback can use this
-toolchain when compiling terminal and file-watcher addons.
-
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
 and signing. The signing mixin requests `git-identity@1`, so the runtime
