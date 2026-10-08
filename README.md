@@ -29,16 +29,10 @@ the retry checks that preserve existing work. Use
 The environment does not mount a host repository. Run it again with the same
 file, name, and arguments to reattach.
 
-For a project-oriented launcher with automatic conversation persistence, use
-[sup](https://github.com/dvdksn/sup). It manages the native `sbx mount` attachment and selected agent state before
-agent use. Running this environment directly leaves history in
-the sandbox unless you explicitly set up persistence.
+For a project-oriented launcher, use [sup](https://github.com/dvdksn/sup).
 
-On sbx v0.45.1, OAuth selection reads only the first OAuth provider from each
-published kit artifact. `sbxenv.yaml` composes Claude and Codex as separate
-artifacts, so each agent's host OAuth credential can be selected. The GitHub
-and Markdown mixins are published as one tools set because seven individual
-kits exceed Docker's container-label size limit for the composition lock.
+Use SBX v0.48 or newer. `sbxenv.yaml` composes Claude and Codex as separate
+artifacts so each agent can use its host OAuth credentials.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
@@ -74,7 +68,6 @@ the image.
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
-| `kits/tools/` | Published set of GitHub and Markdown mixins |
 
 The shell template follows the `shell-docker` tag. DHI base images and the upstream
 agent binary downloads remain build dependencies; this repository owns
@@ -91,7 +84,6 @@ password secret is needed.
 2. A job combines both architectures under each mixin's commit tag and
    builds the shell for both platforms together. This keeps its derived
    package declarations consistent across architectures.
-3. A job combines the four non-agent mixins into one tools artifact.
 
 Each component has its own GHCR image, such as
 `ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
@@ -135,16 +127,11 @@ The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
 
-## Agent context and history
+## Agent context
 
 The shell provides a brief environment description and the project location.
 The signing mixin explains its Git-only SSH signing constraint. Other mixins
 install and configure tools without adding routine agent instructions.
-
-History persistence belongs to the host launcher. There is no history kit or
-installed history command. Sup uses the native `sbx mount` command to attach a
-per-project host directory, then connects selected agent paths before use.
-Running the kit directly keeps conversations inside the sandbox by default.
 
 ```sh
 python3 -m unittest discover -s tests -v
