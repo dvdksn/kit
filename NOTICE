@@ -19,3 +19,9 @@ https://github.com/cdupuis/sbx-kits
 Revision: d71f2269757dc27077818d5296bf2eb91e61c3a7
 Modified for v3, a fixed clone directory, repository-only input, shallow cloning, and preservation of
 existing work.
+
+Browser mixin adapted from dvdksn/browser-kit codex/spec.yaml:
+https://github.com/dvdksn/browser-kit
+Revision: c0e7bb68defc9e7f634318b40ef3ca9697c869fb
+Migrated to v3 with a pinned npm overlay, Claude user-scope MCP registration,
+install-only download grants, and separate temporary directories per server.

@@ -1,0 +1,58 @@
+# syntax=docker/sandbox-kit:3
+# MIGRATION NOTE: replace the Codex-only requirement with registration for
+# both agents. Compose after their config-seeding hooks. Download grants
+# apply only at install; website access follows the sandbox network policy.
+# npm installs are baked; Chromium apt dependencies need the composed base.
+schemaVersion: '3'
+version: 1.0.0
+sourceUrl: https://github.com/dvdksn/kit
+displayName: Browser Use (mixin)
+description: Isolated headless Chromium through Playwright MCP for Claude and Codex
+kind: mixin
+capabilities:
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      install:
+        allow:
+          # The composed shell uses Debian/DHI apt sources.
+          - deb.debian.org:80
+          - dhi.io:80
+          - registry.npmjs.org:443
+          - cdn.playwright.dev:443
+          - playwright.download.prss.microsoft.com:443
+          - storage.googleapis.com:443
+          - archive.ubuntu.com:80
+          - security.ubuntu.com:80
+          - ports.ubuntu.com:80
+          - download.docker.com:443
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            set -eu
+            export PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+            mkdir -p "$PLAYWRIGHT_BROWSERS_PATH"
+            playwright install --with-deps chromium
+            chmod -R a+rX "$PLAYWRIGHT_BROWSERS_PATH"
+            rm -rf /var/lib/apt/lists/*
+          user: '0'
+          description: Install Chromium and its system dependencies
+          env:
+            - PLAYWRIGHT_BROWSERS_PATH
+            - HTTP_PROXY
+            - HTTPS_PROXY
+            - NO_PROXY
+            - http_proxy
+            - https_proxy
+            - no_proxy
+        - command: |
+            set -eu
+            codex mcp remove browser-use >/dev/null 2>&1 || true
+            codex mcp add browser-use --env PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright -- browser-use-mcp
+            claude mcp remove --scope user browser-use >/dev/null 2>&1 || true
+            claude mcp add --scope user --transport stdio browser-use --env PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright -- browser-use-mcp
+          user: '1000'
+          description: Register browser-use MCP with Codex and Claude
+  - type: com.docker.sandbox/agent-context@1
+    config:
+      contentFile: ./browser-context.md
