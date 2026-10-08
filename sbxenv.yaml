@@ -21,6 +21,7 @@ kits:
   - source: ghcr.io/dvdksn/kit-shell:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-claude-mixin:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-codex-mixin:${{ env.args.revision }}
+  - source: ghcr.io/dvdksn/kit-browser-mixin:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-github-ssh:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-git-signing:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-rumdl:${{ env.args.revision }}

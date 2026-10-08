@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+browser_path=$(find /opt/ms-playwright -path '*/chrome-linux*/chrome' -type f | sort | tail -n 1)
+if [ -z "$browser_path" ]; then
+  echo "Playwright Chromium is not installed under /opt/ms-playwright" >&2
+  exit 1
+fi
+
+umask 077
+runtime_dir=$(mktemp -d /tmp/browser-use.XXXXXXXX)
+output_dir="$runtime_dir/output"
+mkdir -m 0700 "$output_dir"
+
+exec playwright-mcp \
+  --headless \
+  --sandbox \
+  --isolated \
+  --block-service-workers \
+  --executable-path "$browser_path" \
+  --output-dir "$output_dir" \
+  "$@"

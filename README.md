@@ -1,7 +1,7 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-GitHub cloning, SSH access, Git signing, and rumdl for Markdown.
+GitHub cloning, SSH access, Git signing, rumdl for Markdown, and browser tools.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -64,6 +64,7 @@ the image.
 | `kits/shell/` | Shell workload built from the DHI shell-docker template |
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
+| `kits/browser-mixin/` | Pinned Playwright MCP and Chromium for both agents |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
@@ -121,6 +122,13 @@ uses its latest GitHub release and published checksum. Run the workflow again
 to refresh tools.
 Local builds need `--pull --no-cache` for the same behavior.
 
+The browser mixin registers the local `browser-use` MCP server with Claude
+(user scope) and Codex. Ask either agent to use browser-use to open a website.
+Each server uses an isolated ephemeral profile and a separate output directory
+under `/tmp`. Chromium and its system dependencies are installed at sandbox
+creation. Website access follows your sandbox network policy.
+The mixin expects Node/npm and both agent CLIs from the composed environment;
+keep it after the agent mixins so registration follows their config setup.
 No agent MCP gateway is registered automatically.
 
 The original kit sources and Docker-derived files are Apache-2.0 licensed.

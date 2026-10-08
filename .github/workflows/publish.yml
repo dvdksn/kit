@@ -47,7 +47,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone; do
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone browser-mixin; do
             docker buildx build "kits/$kit" -f "kits/$kit/$kit.yaml" \
             --platform "linux/$ARCH" --pull --no-cache --provenance=false --push \
             --tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA-$ARCH"
@@ -75,7 +75,7 @@ jobs:
       - name: Publish both architectures under each component tag
         run: |
           set -euo pipefail
-          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone; do
+          for kit in claude-mixin codex-mixin github-ssh git-signing rumdl github-clone browser-mixin; do
             tags=(--tag "$IMAGE_PREFIX-$kit:$GITHUB_SHA")
             if [ "$GITHUB_REF" = refs/heads/main ]; then tags+=(--tag "$IMAGE_PREFIX-$kit:latest"); fi
             docker buildx imagetools create "${tags[@]}" \
