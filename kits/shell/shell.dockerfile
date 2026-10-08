@@ -10,5 +10,6 @@ USER 1000
 WORKDIR /home/agent/workspace
 ENV SHELL=/usr/bin/bash
 ENV BROWSER=xdg-open
+ENV PAGER=less
 ENTRYPOINT ["bash"]
 CMD ["-l"]
