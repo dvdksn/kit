@@ -1,7 +1,8 @@
 # Development sandbox kits
 
 A Docker Sandbox environment with a shell workload, Claude Code, Codex,
-GitHub cloning, SSH access, Git signing, rumdl for Markdown, and browser tools.
+GitHub cloning, SSH access, Git signing, rumdl for Markdown, browser tools,
+Hugo Extended, and Vale.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -36,6 +37,9 @@ artifacts so each agent can use its host OAuth credentials.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
+Use `hugo` to build Hugo sites and `hugo server --bind 0.0.0.0` to preview them
+(publish port 1313 on the sandbox host). Run `vale sync` in the project to
+download configured styles, then `vale <file>` to lint prose.
 The host must have an SSH agent with a loaded key for the required SSH
 capabilities. Add the appropriate public key to GitHub for authentication
 and signing. The signing mixin requests `git-identity@1`, so the runtime
@@ -67,6 +71,8 @@ the image.
 | `kits/browser-mixin/` | Pinned Playwright MCP and Chromium for both agents |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
+| `kits/hugo/` | Latest stable Hugo Extended with verified release checksums |
+| `kits/vale/` | Latest stable Vale prose linter with verified release checksums |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
 
@@ -118,7 +124,9 @@ kit-tck validate --layout /tmp/claude-layout latest
 
 Each CI build fetches the latest stable program releases without cached
 install layers. Codex and Claude use their official native installers; rumdl
-uses its latest GitHub release and published checksum. Run the workflow again
+uses its latest GitHub release and published checksum. Hugo Extended and Vale
+also resolve their latest stable GitHub release at build time and verify its
+published checksums. Run the workflow again
 to refresh tools.
 Local builds need `--pull --no-cache` for the same behavior.
 

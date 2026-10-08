@@ -24,6 +24,8 @@ kits:
   - source: ghcr.io/dvdksn/kit-browser-mixin:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-github-ssh:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-git-signing:${{ env.args.revision }}
+  - source: ghcr.io/dvdksn/kit-hugo:${{ env.args.revision }}
+  - source: ghcr.io/dvdksn/kit-vale:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-rumdl:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-github-clone:${{ env.args.revision }}
     args:
