@@ -28,6 +28,13 @@ capabilities:
 
   - type: com.docker.sandbox/lifecycle@1
     config:
+      install:
+        - command: |
+            set -eu
+            line='if [ -S /run/ssh-agent.sock ]; then export SSH_AUTH_SOCK=/run/ssh-agent.sock; fi'
+            grep -Fxq "$line" /etc/sandbox-persistent.sh || printf '\n%s\n' "$line" >> /etc/sandbox-persistent.sh
+          user: agent
+          description: Restore the runtime SSH agent for shell sessions
       startup:
         # Fill only missing XDG defaults; ~/.gitconfig still takes precedence.
         - command: |
