@@ -25,3 +25,13 @@ https://github.com/dvdksn/browser-kit
 Revision: c0e7bb68defc9e7f634318b40ef3ca9697c869fb
 Migrated to v3 with a pinned npm overlay, Claude user-scope MCP registration,
 install-only download grants, and separate temporary directories per server.
+
+Hugo mixin adapted from https://github.com/docker/docs/.sbx/kits/hugo/spec.yaml (Apache-2.0).
+Revision: 8a308ef225342b9e61c7cb5733329b9148424eb7
+Migrated from a pinned v2 install hook to a v3 latest-stable binary overlay
+with published checksum verification; updated agent guidance for this environment.
+
+Vale mixin adapted from https://github.com/docker/sbx-kits-contrib/vale/spec.yaml (Apache-2.0).
+Revision: 171056460876975679dcb3cbb8e8f919f2356c06
+Migrated from a pinned v2 install hook to a v3 latest-stable binary overlay
+with published checksum verification; updated agent guidance for this environment.
