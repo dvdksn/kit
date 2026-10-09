@@ -14,9 +14,15 @@ environment. The README covers the available tools and how to run the sandbox.
 - `sbxenv.yaml` composes the published GHCR kits into a runnable environment.
   Its `repo` argument selects the GitHub repository to clone; `revision` selects
   the published kit tag (default: `latest`). It also binds the host GitHub token.
-- `.github/workflows/` tests and publishes the kits; `tests/` covers cloning.
+- `docker-bake.hcl` defines how every kit is built and tagged; the workflows in
+  `.github/workflows/` call it. `tests/` covers cloning and checks that kits are
+  registered consistently.
 
 ## Working on kits
+
+To add a kit, create `kits/<name>/` with `<name>.yaml` and `<name>.dockerfile`,
+then add `<name>` to `MIXINS` in `docker-bake.hcl` and a `source` entry to
+`sbxenv.yaml`. `tests/test_kits.py` fails if those drift from `kits/`.
 
 Keep tool-specific capabilities, hooks, and context in the relevant mixin.
 Keep the shell workload focused on the shared environment. Update `sbxenv.yaml`
@@ -53,6 +59,8 @@ kit-tck validate --layout /tmp/claude-layout latest
 Builds resolve the latest stable agent and tool releases, except the pinned
 Playwright MCP version and Task 3.54.0. Use `--pull --no-cache` to refresh dependencies; release
 binary recipes for Hugo, Vale, rumdl, and Task verify published checksums.
+
+Build any kit with bake, e.g. `docker buildx bake task`.
 
 The `Publish kits` workflow runs on pushes to `main` and manual dispatch, using
 `GITHUB_TOKEN` with `packages: write`. Native AMD64 and ARM64 runners build the
