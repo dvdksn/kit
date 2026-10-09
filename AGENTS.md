@@ -8,7 +8,7 @@ environment. The README covers the available tools and how to run the sandbox.
 - `kits/shell/` is the workload: the base image, shell entrypoint, common CLI
   tools, and shared sandbox context. It uses the DHI `shell-docker` template.
 - The other directories in `kits/` are mixins that add Claude Code, Codex,
-  browser tools, GitHub access, Git signing, Hugo, Vale, and rumdl to the workload.
+  browser tools, GitHub access, Git signing, Hugo, Vale, rumdl, and Task to the workload.
 - Each kit has a v3 descriptor (`<kit>.yaml`) declaring its capabilities and a
   content recipe (`<kit>.dockerfile`). Scripts and context files live beside them.
 - `sbxenv.yaml` composes the published GHCR kits into a runnable environment.
@@ -51,8 +51,8 @@ kit-tck validate --layout /tmp/claude-layout latest
 ```
 
 Builds resolve the latest stable agent and tool releases, except the pinned
-Playwright MCP version. Use `--pull --no-cache` to refresh dependencies; release
-binary recipes for Hugo, Vale, and rumdl verify published checksums.
+Playwright MCP version and Task 3.54.0. Use `--pull --no-cache` to refresh dependencies; release
+binary recipes for Hugo, Vale, rumdl, and Task verify published checksums.
 
 The `Publish kits` workflow runs on pushes to `main` and manual dispatch, using
 `GITHUB_TOKEN` with `packages: write`. Native AMD64 and ARM64 runners build the

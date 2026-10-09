@@ -1,0 +1,17 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: mixin
+displayName: Task
+description: Task CLI for running Taskfiles, pinned to 3.54.0.
+sourceUrl: https://github.com/dvdksn/kit
+licenses: [Apache-2.0]
+version: "${{ kit.args.version }}"
+args:
+  version:
+    default: "3.54.0"
+    # The recipe's per-architecture checksums are specific to this release.
+    pattern: '^3\.54\.0$'
+    description: Task release (update the checksums before changing this pin)
+    buildArg: TASK_VERSION
+provides: ["task@${{ kit.args.version }}"]
+# A static binary overlay needs no runtime dependencies or capabilities.

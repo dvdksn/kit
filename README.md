@@ -3,7 +3,7 @@
 My personal Docker Sandbox kits for a coding agent environment with a shell
 workload, Claude Code, Codex,
 GitHub cloning, SSH access, Git signing, rumdl for Markdown, browser tools,
-Hugo Extended, and Vale.
+Hugo Extended, Vale, and Task.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -38,6 +38,7 @@ artifacts so each agent can use its host OAuth credentials.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
+Use `task --list` to list project tasks and `task <name>` to run one.
 Use `hugo` to build Hugo sites and `hugo server --bind 0.0.0.0` to preview them
 (publish port 1313 on the sandbox host). Run `vale sync` in the project to
 download configured styles, then `vale <file>` to lint prose.
@@ -74,6 +75,7 @@ the image.
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
 | `kits/hugo/` | Latest stable Hugo Extended with verified release checksums |
 | `kits/vale/` | Latest stable Vale prose linter with verified release checksums |
+| `kits/task/` | Pinned Task 3.54.0 CLI with verified release checksums |
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
 
