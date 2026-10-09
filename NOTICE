@@ -35,3 +35,11 @@ Vale mixin adapted from https://github.com/docker/sbx-kits-contrib/vale/spec.yam
 Revision: 171056460876975679dcb3cbb8e8f919f2356c06
 Migrated from a pinned v2 install hook to a v3 latest-stable binary overlay
 with published checksum verification; updated agent guidance for this environment.
+
+Task mixin adapted from docker/sbx-kits-contrib/task (Apache-2.0).
+Source: https://github.com/docker/sbx-kits-contrib/tree/v3/task
+Revision: 2159318f7d7e362b38ab60234b6bf91c113a08b9
+Updated Task to the current stable 3.54.0 release and its per-architecture checksums;
+retained installed-version verification.
+Modified to use the local DHI build base, descriptor version argument and metadata,
+and this repository's environment and publication workflow.
