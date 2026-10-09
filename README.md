@@ -1,6 +1,7 @@
 # Development sandbox kits
 
-A Docker Sandbox environment with a shell workload, Claude Code, Codex,
+My personal Docker Sandbox kits for a coding agent environment with a shell
+workload, Claude Code, Codex,
 GitHub cloning, SSH access, Git signing, rumdl for Markdown, browser tools,
 Hugo Extended, and Vale.
 
@@ -81,75 +82,30 @@ agent binary downloads remain build dependencies; this repository owns
 the kit definitions and recipes, not those third-party projects.
 `NOTICE` records the copied examples' source revision and modifications.
 
-## Build and publish
+## Published kits and development
 
-The `Publish kits` GitHub Actions workflow runs on pushes to `main` and
-manual dispatch. It uses `GITHUB_TOKEN` with `packages: write`; no registry
-password secret is needed.
+Each component is published as a public GHCR image for AMD64 and ARM64, such as
+`ghcr.io/dvdksn/kit-codex-mixin`. `sbxenv.yaml` combines the shell workload
+(the base image and shell entrypoint) with mixins that add tools, credentials,
+and lifecycle hooks. The environment grants the union of the kits' permissions.
+The browser mixin registers `browser-use` MCP with both agents and installs
+Chromium at sandbox creation; browser profiles are ephemeral and website access
+follows the sandbox network policy.
 
-1. Native AMD64 and ARM64 runners build and push the local mixins.
-2. A job combines both architectures under each mixin's commit tag and
-   builds the shell for both platforms together. This keeps its derived
-   package declarations consistent across architectures.
-
-Each component has its own GHCR image, such as
-`ghcr.io/dvdksn/kit-codex-mixin`. The distinct image names let `sbx`
-compose the kits without a name collision. All component sources remain in
-this GitHub repository.
-
-Component images have `:<full-commit-sha>` and `:latest` tags. Use a digest
-when you need an immutable reference. The environment file uses the moving
-`:latest` tags, with a `revision` argument to select a commit build:
+The environment uses moving `:latest` tags by default. Select a published commit
+build with the `revision` argument:
 
 ```sh
 sbx env run ./sbxenv.yaml --name docs --env-arg repo=docker/docs \
   --env-arg revision=FULL_COMMIT_SHA
 ```
 
-Manual builds on feature branches publish commit tags only; they do not move
-`:latest`. Main builds publish both. Images previously published under `ghcr.io/dvdksn/kit`
-remain in GHCR but are no longer updated.
+Use image digests when you need immutable references. Main builds publish both
+commit and `latest` tags; manual feature branch builds publish commit tags only.
 
-The GHCR packages are public and support anonymous pulls.
-
-To build a component locally:
-
-```sh
-docker buildx build kits/claude-mixin \
-  -f kits/claude-mixin/claude-mixin.yaml \
-  --pull --no-cache -t claude-mixin:latest \
-  --output type=oci,dest=/tmp/claude-layout,tar=false
-kit-tck validate --layout /tmp/claude-layout latest
-```
-
-Each CI build fetches the latest stable program releases without cached
-install layers. Codex and Claude use their official native installers; rumdl
-uses its latest GitHub release and published checksum. Hugo Extended and Vale
-also resolve their latest stable GitHub release at build time and verify its
-published checksums. Run the workflow again
-to refresh tools.
-Local builds need `--pull --no-cache` for the same behavior.
-
-The browser mixin registers the local `browser-use` MCP server with Claude
-(user scope) and Codex. Ask either agent to use browser-use to open a website.
-Each server uses an isolated ephemeral profile and a separate output directory
-under `/tmp`. Chromium and its system dependencies are installed at sandbox
-creation. Website access follows your sandbox network policy.
-The mixin expects Node/npm and both agent CLIs from the composed environment;
-keep it after the agent mixins so registration follows their config setup.
-No agent MCP gateway is registered automatically.
+See [AGENTS.md](AGENTS.md) for the repository architecture, editing guidance,
+and build, validation, and publishing workflow.
 
 The original kit sources and Docker-derived files are Apache-2.0 licensed.
 See `NOTICE` for upstream attribution.
 Third-party images and binaries retain their own licenses.
-
-## Agent context
-
-The shell provides a brief environment description and the project location.
-The signing mixin explains its Git-only SSH signing constraint. Other mixins
-install and configure tools without adding routine agent instructions.
-
-```sh
-python3 -m unittest discover -s tests -v
-bash -n kits/github-clone/clone.sh
-```
