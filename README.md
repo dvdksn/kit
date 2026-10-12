@@ -35,15 +35,19 @@ For a project-oriented launcher, use [sup](https://github.com/dvdksn/sup).
 Use SBX v0.48.0 or newer. `sbxenv.yaml` composes Claude and Codex as separate
 artifacts so each agent can use its host OAuth credentials.
 
-The base kit selects `/home/agent/.agents/AGENTS.md` as the shared context
-profile. It contains sandbox guidance and an index of the kits' context bodies.
-The Codex and Claude mixins link `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`
-to that file so both agents discover the same guidance. Their install hooks
-preserve matching links and refuse to replace existing files or other links.
-Future agent mixins should link their discovery file to the same profile,
-without declaring another agent-context destination. Project instructions
-remain in the checkout. Rebuild the affected kits and create a new sandbox
-to adopt this layout; reattaching to an existing sandbox does not migrate it.
+Claude and Codex each declare their native global instruction destination:
+`~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. The runtime writes sandbox
+guidance and the full Kit context index to both profiles, preserving authored
+instructions outside its managed sections. The base contributes shared context
+without selecting a profile destination.
+Future agent mixins should declare their own discovery destination through
+`agent-context@1`.
+
+This composition requires runtime support for multiple explicit agent-context
+profiles. Older runtimes that only support one profile refuse the composition.
+Rebuild the affected kits and create a new sandbox to try this layout; existing
+sandboxes keep their previous context files and discovery links. Project
+instructions remain in the checkout.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.

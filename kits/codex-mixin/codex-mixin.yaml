@@ -87,19 +87,6 @@ capabilities:
   - type: com.docker.sandbox/lifecycle@1
     config:
       install:
-        - command: |
-            set -eu
-            mkdir -p /home/agent/.codex
-            profile=/home/agent/.codex/AGENTS.md
-            target=/home/agent/.agents/AGENTS.md
-            if [ ! -e "$profile" ] && [ ! -L "$profile" ]; then
-              ln -s "$target" "$profile"
-            elif [ "$(readlink "$profile")" != "$target" ]; then
-              printf 'Refusing to replace existing agent instructions: %s\n' "$profile" >&2
-              exit 1
-            fi
-          user: agent
-          description: Link Codex global instructions to the shared agent context
         # Seed ~/.codex/config.toml + ~/.codex/auth.json, branching on the
         # auth mode surfaced via SBX_CRED_OPENAI_MODE:
         #   - oauth  -> forced API-key login + the sandboxd model_provider
@@ -189,3 +176,9 @@ capabilities:
     optional: true
     config:
       path: /home/agent/.agents/skills
+
+  # The runtime writes shared guidance and the full Kit index here.
+  - type: com.docker.sandbox/agent-context@1
+    config:
+      filename: AGENTS.md
+      directory: /home/agent/.codex
