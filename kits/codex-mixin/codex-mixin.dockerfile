@@ -18,10 +18,10 @@ INSTALL
 
 # Keep shell preferences separate from additive image environment variables.
 RUN mkdir -p /out/etc/profile.d && cat > /out/etc/profile.d/codex-env.sh <<'PROFILE'
-export CODEX_HOME=/home/agent/.codex
 export IS_SANDBOX=1
 export GIT_TERMINAL_PROMPT=0
 PROFILE
 
 FROM scratch
 COPY --from=build /out /
+ENV CODEX_HOME=/home/agent/.codex

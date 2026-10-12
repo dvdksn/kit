@@ -3,9 +3,9 @@
 # the same credential (API key or ChatGPT OAuth), egress, and hooks, minus
 # what only the environment-owning kit carries (the entrypoint — run
 # `codex` in the base's shell). The v2
-# environment.variables block has no v3 field; those exports ride the
-# overlay as /etc/profile.d/codex-env.sh, sourced by the base's login
-# shell.
+# environment.variables block has no v3 field; CODEX_HOME is image
+# environment, while shell preferences ride the overlay as
+# /etc/profile.d/codex-env.sh, sourced by the base's login shell.
 schemaVersion: "3"
 sourceUrl: https://github.com/dvdksn/kit
 displayName: Codex CLI
@@ -87,6 +87,19 @@ capabilities:
   - type: com.docker.sandbox/lifecycle@1
     config:
       install:
+        - command: |
+            set -eu
+            mkdir -p /home/agent/.codex
+            profile=/home/agent/.codex/AGENTS.md
+            target=/home/agent/.agents/AGENTS.md
+            if [ ! -e "$profile" ] && [ ! -L "$profile" ]; then
+              ln -s "$target" "$profile"
+            elif [ "$(readlink "$profile")" != "$target" ]; then
+              printf 'Refusing to replace existing agent instructions: %s\n' "$profile" >&2
+              exit 1
+            fi
+          user: agent
+          description: Link Codex global instructions to the shared agent context
         # Seed ~/.codex/config.toml + ~/.codex/auth.json, branching on the
         # auth mode surfaced via SBX_CRED_OPENAI_MODE:
         #   - oauth  -> forced API-key login + the sandboxd model_provider

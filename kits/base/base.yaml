@@ -37,10 +37,11 @@ capabilities:
           - deb.debian.org
           - dhi.io
 
-  # Keep the shared environment description in the workload.
+  # Own one neutral profile; agent mixins link their discovery files here.
   - type: com.docker.sandbox/agent-context@1
     config:
       filename: AGENTS.md
+      directory: /home/agent/.agents
       content: |
         This sandbox uses the shared base environment on the shell-docker template: bash,
         git, apt, Docker (compose/buildx), curl, gh, jq, make, gcc,
