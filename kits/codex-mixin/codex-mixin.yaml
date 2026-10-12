@@ -50,7 +50,6 @@ capabilities:
           - auth.openai.com:443
           - chatgpt.com:443
           - files.openai.com:443
-          - registry.npmjs.org:443
           - releases.openai.com:443
           - api.github.com:443
           - github.com:443
