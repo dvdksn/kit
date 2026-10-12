@@ -15,7 +15,7 @@ To build and check locally:
 docker buildx build kits/task -f kits/task/task.yaml \
   --output type=oci,dest=/tmp/task-layout,tar=false -t task:3.54.0
 kit-tck validate --layout /tmp/task-layout 3.54.0
-sbx run ./kits/shell --kit ./kits/task --detached --name task-check .
+sbx run ./kits/base --kit ./kits/task --detached --name task-check .
 sbx exec task-check task --version
 ```
 

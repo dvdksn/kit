@@ -56,8 +56,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push the shell for both platforms
-        run: docker buildx bake shell --push
+      - name: Build and push the base kit for both platforms
+        run: docker buildx bake base --push
       - name: Publish both architectures under each mixin tag
         run: |
           set -euo pipefail

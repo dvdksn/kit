@@ -1,7 +1,6 @@
 # Development sandbox kits
 
-My personal Docker Sandbox kits for a coding agent environment with a shell
-workload, Claude Code, Codex,
+My personal Docker Sandbox kits with a shared base environment, Claude Code, Codex,
 GitHub cloning, SSH access, Git signing, rumdl for Markdown, browser tools,
 Hugo Extended, Vale, and Task.
 
@@ -67,7 +66,7 @@ the image.
 | Path | Purpose |
 | --- | --- |
 | `sbxenv.yaml` | Composes the published kits at sandbox creation |
-| `kits/shell/` | Shell workload built from the DHI shell-docker template |
+| `kits/base/` | Shared base environment and default shell workload, built from the DHI shell-docker template |
 | `kits/claude-mixin/` | Latest Claude Code native binary, credentials, and hooks |
 | `kits/codex-mixin/` | Latest Codex standalone installation, credentials, and hooks |
 | `kits/browser-mixin/` | Pinned Playwright MCP and Chromium for both agents |
@@ -79,7 +78,7 @@ the image.
 | `kits/rumdl/` | Latest rumdl binary with verified release checksums |
 | `kits/github-clone/` | HTTPS clone with proxy-managed GitHub credentials |
 
-The shell template follows the `shell-docker` tag. DHI base images and the upstream
+The base kit uses the `shell-docker` template tag. DHI base images and upstream
 agent binary downloads remain build dependencies; this repository owns
 the kit definitions and recipes, not those third-party projects.
 `NOTICE` records the copied examples' source revision and modifications.
@@ -87,9 +86,10 @@ the kit definitions and recipes, not those third-party projects.
 ## Published kits and development
 
 Each component is published as a public GHCR image for AMD64 and ARM64, such as
-`ghcr.io/dvdksn/kit-codex-mixin`. `sbxenv.yaml` combines the shell workload
-(the base image and shell entrypoint) with mixins that add tools, credentials,
-and lifecycle hooks. The environment grants the union of the kits' permissions.
+`ghcr.io/dvdksn/kit-base` and `ghcr.io/dvdksn/kit-codex-mixin`.
+`sbxenv.yaml` combines the base kit
+(the shared environment and default shell entrypoint) with mixins that add tools,
+credentials, and lifecycle hooks. The environment grants the union of the kits' permissions.
 The browser mixin registers `browser-use` MCP with both agents and installs
 Chromium at sandbox creation; browser profiles are ephemeral and website access
 follows the sandbox network policy.
