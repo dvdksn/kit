@@ -13,7 +13,6 @@ mkdir -p /out/home/agent/.codex /out/home/agent/.local /out/usr/local/bin
 cp -a "$CODEX_HOME/packages" /out/home/agent/.codex/packages
 cp -a "$CODEX_INSTALL_DIR" /out/home/agent/.local/bin
 ln -s /home/agent/.local/bin/codex /out/usr/local/bin/codex
-ln -s /home/agent/.codex/packages/standalone/current/bin/codex-code-mode-host /out/usr/local/bin/codex-code-mode-host
 chown -R 1000:1000 /out/home/agent
 INSTALL
 
