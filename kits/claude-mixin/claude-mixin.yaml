@@ -98,6 +98,19 @@ capabilities:
           user: "0"
           description: Ensure ~/.claude is agent-owned before settings seed
 
+        - command: |
+            set -eu
+            profile=/home/agent/.claude/CLAUDE.md
+            target=/home/agent/.agents/AGENTS.md
+            if [ ! -e "$profile" ] && [ ! -L "$profile" ]; then
+              ln -s "$target" "$profile"
+            elif [ "$(readlink "$profile")" != "$target" ]; then
+              printf 'Refusing to replace existing agent instructions: %s\n' "$profile" >&2
+              exit 1
+            fi
+          user: agent
+          description: Link Claude user instructions to the shared agent context
+
         # Seed ~/.claude/settings.json from the auth mode the engine
         # surfaces. apiKeyHelper is included only when a credential
         # resolved; without it Claude Code prompts for /login. Rewritten

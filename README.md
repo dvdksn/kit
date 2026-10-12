@@ -32,8 +32,18 @@ file, name, and arguments to reattach.
 
 For a project-oriented launcher, use [sup](https://github.com/dvdksn/sup).
 
-Use SBX v0.48 or newer. `sbxenv.yaml` composes Claude and Codex as separate
+Use SBX v0.48.0 or newer. `sbxenv.yaml` composes Claude and Codex as separate
 artifacts so each agent can use its host OAuth credentials.
+
+The base kit selects `/home/agent/.agents/AGENTS.md` as the shared context
+profile. It contains sandbox guidance and an index of the kits' context bodies.
+The Codex and Claude mixins link `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md`
+to that file so both agents discover the same guidance. Their install hooks
+preserve matching links and refuse to replace existing files or other links.
+Future agent mixins should link their discovery file to the same profile,
+without declaring another agent-context destination. Project instructions
+remain in the checkout. Rebuild the affected kits and create a new sandbox
+to adopt this layout; reattaching to an existing sandbox does not migrate it.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
