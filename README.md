@@ -43,12 +43,6 @@ without selecting a profile destination.
 Future agent mixins should declare their own discovery destination through
 `agent-context@1`.
 
-This composition requires runtime support for multiple explicit agent-context
-profiles. Older runtimes that only support one profile refuse the composition.
-Rebuild the affected kits and create a new sandbox to try this layout; existing
-sandboxes keep their previous context files and discovery links. Project
-instructions remain in the checkout.
-
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
 Use `task --list` to list project tasks and `task <name>` to run one.
