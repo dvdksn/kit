@@ -39,7 +39,7 @@ capabilities:
   # non-credential domains codex itself needs: files.openai.com
   # (attachments/uploads at startup), the GitHub hosts (codex's native
   # binary checks releases for updates and fetches skills/plugins), and
-  # registry.npmjs.org (the npm-based `codex upgrade` action). The base's
+  # releases.openai.com (the native `codex update` action). The base's
   # apt mirrors stay with the base.
   - type: com.docker.sandbox/network-policy@1
     config:
@@ -50,7 +50,6 @@ capabilities:
           - auth.openai.com:443
           - chatgpt.com:443
           - files.openai.com:443
-          - registry.npmjs.org:443
           - releases.openai.com:443
           - api.github.com:443
           - github.com:443
