@@ -4,7 +4,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
 # The workload is published separately from the mixins.
-WORKLOAD = 'shell'
+WORKLOAD = 'base'
 
 
 def kit_dirs():

@@ -1,7 +1,7 @@
 # Builds and publishes every kit. The publish workflow drives this file:
 #
 #   docker buildx bake mixins --push   # per-architecture mixin images
-#   docker buildx bake shell --push    # multi-platform shell workload
+#   docker buildx bake base --push    # multi-platform base workload
 #
 # Adding a kit under kits/<name>/ (descriptor kits/<name>/<name>.yaml) only
 # needs the name added to MIXINS; tests/test_kits.py checks the list against
@@ -16,7 +16,7 @@ variable "TAG" {
   default = "dev"
 }
 
-# Also tag the shell as :latest (main builds only).
+# Also tag the base as :latest (main builds only).
 variable "LATEST" {
   default = false
 }
@@ -43,7 +43,7 @@ variable "MIXINS" {
 }
 
 group "default" {
-  targets = ["shell", "mixins"]
+  targets = ["base", "mixins"]
 }
 
 group "mixins" {
@@ -68,13 +68,13 @@ target "mixin" {
 
 # Built for both platforms in one invocation so the derived package
 # declarations stay consistent across architectures.
-target "shell" {
+target "base" {
   inherits   = ["_kit"]
-  context    = "kits/shell"
-  dockerfile = "shell.yaml"
+  context    = "kits/base"
+  dockerfile = "base.yaml"
   platforms  = ["linux/amd64", "linux/arm64"]
   tags = concat(
-    ["${REGISTRY}-shell:${TAG}"],
-    LATEST ? ["${REGISTRY}-shell:latest"] : [],
+    ["${REGISTRY}-base:${TAG}"],
+    LATEST ? ["${REGISTRY}-base:latest"] : [],
   )
 }

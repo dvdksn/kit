@@ -5,7 +5,7 @@ environment. The README covers the available tools and how to run the sandbox.
 
 ## Architecture
 
-- `kits/shell/` is the workload: the base image, shell entrypoint, common CLI
+- `kits/base/` is the workload: the base image, shell entrypoint, common CLI
   tools, and shared sandbox context. It uses the DHI `shell-docker` template.
 - The other directories in `kits/` are mixins that add Claude Code, Codex,
   browser tools, GitHub access, Git signing, Hugo, Vale, rumdl, and Task to the workload.
@@ -25,7 +25,7 @@ then add `<name>` to `MIXINS` in `docker-bake.hcl` and a `source` entry to
 `sbxenv.yaml`. `tests/test_kits.py` fails if those drift from `kits/`.
 
 Keep tool-specific capabilities, hooks, and context in the relevant mixin.
-Keep the shell workload focused on the shared environment. Update `sbxenv.yaml`
+Keep the base workload focused on the shared environment. Update `sbxenv.yaml`
 when changing the composition. The browser mixin depends on Node/npm and both
 agent CLIs; keep it after the agent mixins so MCP registration follows their
 configuration hooks.
@@ -64,7 +64,7 @@ Build any kit with bake, e.g. `docker buildx bake task`.
 
 The `Publish kits` workflow runs on pushes to `main` and manual dispatch, using
 `GITHUB_TOKEN` with `packages: write`. Native AMD64 and ARM64 runners build the
-mixins, then a job combines their manifests and builds the shell for both
+mixins, then a job combines their manifests and builds the base kit for both
 platforms together to keep derived package declarations consistent.
 All builds publish full commit SHA tags; only main builds update `latest`.
 Rerun the workflow to refresh tools. See `NOTICE` for copied upstream sources

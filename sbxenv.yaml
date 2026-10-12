@@ -1,6 +1,6 @@
 schemaVersion: "1"
 name: dev
-agent: kit-shell
+agent: kit-base
 
 # The project is cloned inside the sandbox. No host repository is mounted.
 args:
@@ -18,7 +18,7 @@ secrets:
     command: gh auth token
 
 kits:
-  - source: ghcr.io/dvdksn/kit-shell:${{ env.args.revision }}
+  - source: ghcr.io/dvdksn/kit-base:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-claude-mixin:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-codex-mixin:${{ env.args.revision }}
   - source: ghcr.io/dvdksn/kit-browser-mixin:${{ env.args.revision }}
