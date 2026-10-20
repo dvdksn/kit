@@ -1,5 +1,4 @@
 schemaVersion: "1"
-name: dev
 agent: kit-base
 
 # The project is cloned inside the sandbox. No host repository is mounted.
@@ -12,10 +11,6 @@ args:
     default: latest
     description: Published kit tag; use a commit SHA for a reproducible environment
     pattern: '^[A-Za-z0-9_.-]+$'
-
-secrets:
-  github:
-    command: gh auth token
 
 kits:
   - source: ghcr.io/dvdksn/kit-base:${{ env.args.revision }}
