@@ -14,6 +14,3 @@ capabilities:
           user: agent
           env: [XDG_CONFIG_HOME, NVIM_APPNAME]
           description: Seed starter Neovim config without replacing existing user configuration
-  - type: com.docker.sandbox/agent-context@1
-    config:
-      contentFile: ./neovim-context.md
