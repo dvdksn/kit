@@ -1,0 +1,8 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+version: "1.0.0"
+sourceUrl: https://github.com/dvdksn/kit
+licenses: [Apache-2.0]
+displayName: Neovim
+description: Latest stable Neovim with its runtime and a plugin-free starter configuration
+kind: mixin
