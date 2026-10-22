@@ -35,6 +35,7 @@ variable "MIXINS" {
     "github-ssh",
     "git-signing",
     "github-clone",
+    "neovim",
     "hugo",
     "vale",
     "task",

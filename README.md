@@ -2,7 +2,7 @@
 
 My personal Docker Sandbox kits with a shared base environment, Claude Code, Codex,
 GitHub cloning, SSH access, Git signing, rumdl for Markdown, browser tools,
-Hugo Extended, Vale, and Task.
+Hugo Extended, Vale, Task, and Neovim.
 
 All component descriptors, Dockerfiles, lifecycle hooks, scripts, and
 agent context files live in this repository. Builds do not fetch kit specs
@@ -47,6 +47,8 @@ to adopt this layout; reattaching to an existing sandbox does not migrate it.
 
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
+Run `nvim` to edit with a lightweight starter configuration. See the [Neovim kit guide](kits/neovim/README.md)
+for terminal access over SSH and notes on remote-nvim.nvim.
 Use `task --list` to list project tasks and `task <name>` to run one.
 Use `hugo` to build Hugo sites and `hugo server --bind 0.0.0.0` to preview them
 (publish port 1313 on the sandbox host). Run `vale sync` in the project to
@@ -82,6 +84,7 @@ the image.
 | `kits/browser-mixin/` | Pinned Playwright MCP and Chromium for both agents |
 | `kits/github-ssh/` | GitHub SSH access and known host keys |
 | `kits/git-signing/` | Runtime Git identity, SSH signing permission, and signing defaults |
+| `kits/neovim/` | Latest stable Neovim with runtime and a plugin-free starter configuration |
 | `kits/hugo/` | Latest stable Hugo Extended with verified release checksums |
 | `kits/vale/` | Latest stable Vale prose linter with verified release checksums |
 | `kits/task/` | Pinned Task 3.54.0 CLI with verified release checksums |
