@@ -21,7 +21,13 @@ RUN set -eu; \
     chown -R 0:0 /out; \
     /out/usr/local/bin/nvim --version; \
     /out/usr/local/bin/nvim --clean --headless '+lua assert(vim.fn.isdirectory(vim.env.VIMRUNTIME) == 1)' +quit
+# Stage config with explicit directory permissions. COPY --chmod=0644 into
+# scratch also applies that mode to missing parents, making /home untraversable
+# when the overlay is composed with the workload.
+COPY init.lua /out/home/agent/.config/nvim/init.lua
+RUN chmod 0755 /out/home /out/home/agent /out/home/agent/.config /out/home/agent/.config/nvim \
+    && chmod 0644 /out/home/agent/.config/nvim/init.lua \
+    && chown -R 1000:1000 /out/home/agent
 # Include bin, lib, and share: Neovim needs its bundled parsers and runtime.
 FROM scratch
 COPY --from=build /out /
-COPY --chown=1000:1000 --chmod=0644 init.lua /home/agent/.config/nvim/init.lua
