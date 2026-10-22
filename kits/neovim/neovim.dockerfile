@@ -24,5 +24,3 @@ RUN set -eu; \
 # Include bin, lib, and share: Neovim needs its bundled parsers and runtime.
 FROM scratch
 COPY --from=build /out /
-COPY --chmod=0644 init.lua /usr/local/share/neovim-kit/init.lua
-COPY --chmod=0755 seed-config.sh /usr/local/share/neovim-kit/seed-config.sh

@@ -8,12 +8,16 @@ for stock behavior.
 
 ## Starter configuration
 
-At sandbox creation, the kit seeds `~/.config/nvim/init.lua` if neither
-`init.lua` nor `init.vim` already exists (including symlinks). It respects
-`XDG_CONFIG_HOME` and `NVIM_APPNAME` when supplied to the install hook.
-The seeded file is yours to edit; recreating the sandbox does not overwrite it.
+The kit declares `/home/agent/.config/nvim/init.lua` through `lifecycle.files`
+with `overwrite: false`. The runtime writes it at start, owned by the agent,
+and preserves the file on subsequent starts if it already exists.
 
-The [starter config](init.lua) draws general-purpose settings from
+This targets the standard sandbox user's config path. It does not follow custom
+`XDG_CONFIG_HOME` or `NVIM_APPNAME` values, or check for a separate `init.vim`.
+If you bring an `init.vim`, migrate it to `init.lua` or remove the starter Lua
+file before launching Neovim; Neovim cannot use both as its user config.
+
+The [starter config](neovim.yaml) draws general-purpose settings from
 [dvdksn/dotfiles](https://github.com/dvdksn/dotfiles/tree/main/config/nvim):
 
 - Absolute and relative line numbers, mouse support, and five lines of scroll margin
