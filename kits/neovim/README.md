@@ -2,22 +2,23 @@
 
 This mixin installs the latest stable Neovim for AMD64 and ARM64, including its
 runtime and bundled parsers. Builds verify the archive against the SHA256 digest
-in GitHub's release metadata. It preserves existing configuration and does not
-start services or publish ports. Run `nvim` in the sandbox, or `nvim --clean`
+in GitHub's release metadata. It does not start services or publish ports. Run `nvim` in the sandbox, or `nvim --clean`
 for stock behavior.
 
 ## Starter configuration
 
-The kit declares `/home/agent/.config/nvim/init.lua` through `lifecycle.files`
-with `overwrite: false`. The runtime writes it at start, owned by the agent,
-and preserves the file on subsequent starts if it already exists.
+The image bundles `/home/agent/.config/nvim/init.lua`, owned by the agent
+(uid/gid 1000). There are no install hooks or runtime file declarations.
+Edit the file directly to customize a sandbox. A mounted home/config directory
+can hide the bundled file; image composition can replace a file at the same
+path, so this is a default for a fresh sandbox rather than a preservation hook.
 
 This targets the standard sandbox user's config path. It does not follow custom
 `XDG_CONFIG_HOME` or `NVIM_APPNAME` values, or check for a separate `init.vim`.
 If you bring an `init.vim`, migrate it to `init.lua` or remove the starter Lua
 file before launching Neovim; Neovim cannot use both as its user config.
 
-The [starter config](neovim.yaml) draws general-purpose settings from
+The [starter config](init.lua) draws general-purpose settings from
 [dvdksn/dotfiles](https://github.com/dvdksn/dotfiles/tree/main/config/nvim):
 
 - Absolute and relative line numbers, mouse support, and five lines of scroll margin

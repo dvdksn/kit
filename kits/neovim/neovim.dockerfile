@@ -24,3 +24,4 @@ RUN set -eu; \
 # Include bin, lib, and share: Neovim needs its bundled parsers and runtime.
 FROM scratch
 COPY --from=build /out /
+COPY --chown=1000:1000 --chmod=0644 init.lua /home/agent/.config/nvim/init.lua
