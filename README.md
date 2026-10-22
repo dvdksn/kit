@@ -48,7 +48,7 @@ to adopt this layout; reattaching to an existing sandbox does not migrate it.
 Run `claude` or `codex` in the shell. Use `rumdl fmt <file>` to format
 Markdown and `rumdl check <file>` to lint it.
 Run `nvim` to edit with a lightweight starter configuration. See the [Neovim kit guide](kits/neovim/README.md)
-for terminal access over SSH and notes on remote-nvim.nvim.
+for basic usage and terminal access over SSH.
 Use `task --list` to list project tasks and `task <name>` to run one.
 Use `hugo` to build Hugo sites and `hugo server --bind 0.0.0.0` to preview them
 (publish port 1313 on the sandbox host). Run `vale sync` in the project to
